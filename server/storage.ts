@@ -1,6 +1,6 @@
-import { type User, type Invoice, type Expense, type InsertUser, type InsertInvoice, type InsertExpense } from "@shared/schema";
+import { type User, type Invoice, type Expense, type BusinessSettings, type InsertUser, type InsertInvoice, type InsertExpense, type InsertBusinessSettings } from "@shared/schema";
 import { db } from "./db";
-import { users, invoices, expenses } from "@shared/schema";
+import { users, invoices, expenses, businessSettings } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
 export interface IStorage {
@@ -18,6 +18,10 @@ export interface IStorage {
   // Expense operations
   createExpense(expense: InsertExpense): Promise<Expense>;
   getExpensesByUserId(userId: number): Promise<Expense[]>;
+
+  // Business Settings operations
+  getBusinessSettings(userId: number): Promise<BusinessSettings | undefined>;
+  updateBusinessSettings(settings: InsertBusinessSettings): Promise<BusinessSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -81,6 +85,36 @@ export class DatabaseStorage implements IStorage {
 
   async getExpensesByUserId(userId: number): Promise<Expense[]> {
     return await db.select().from(expenses).where(eq(expenses.userId, userId));
+  }
+
+  async getBusinessSettings(userId: number): Promise<BusinessSettings | undefined> {
+    const [settings] = await db
+      .select()
+      .from(businessSettings)
+      .where(eq(businessSettings.userId, userId));
+    return settings;
+  }
+
+  async updateBusinessSettings(settings: InsertBusinessSettings): Promise<BusinessSettings> {
+    const [existing] = await db
+      .select()
+      .from(businessSettings)
+      .where(eq(businessSettings.userId, settings.userId));
+
+    if (existing) {
+      const [updated] = await db
+        .update(businessSettings)
+        .set({ ...settings, updatedAt: new Date() })
+        .where(eq(businessSettings.userId, settings.userId))
+        .returning();
+      return updated;
+    }
+
+    const [created] = await db
+      .insert(businessSettings)
+      .values({ ...settings, updatedAt: new Date() })
+      .returning();
+    return created;
   }
 }
 

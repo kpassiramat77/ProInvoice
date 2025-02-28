@@ -30,6 +30,20 @@ export const expenses = pgTable("expenses", {
   date: timestamp("date").notNull(),
 });
 
+export const businessSettings = pgTable("business_settings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  businessName: text("business_name").notNull(),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
+  phone: text("phone"),
+  email: text("email"),
+  logo: text("logo_url"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Extend the insert schemas with proper validation
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -56,9 +70,20 @@ export const insertExpenseSchema = createInsertSchema(expenses)
     date: z.string().transform((date) => new Date(date)),
   });
 
+export const insertBusinessSettingsSchema = createInsertSchema(businessSettings)
+  .omit({
+    id: true,
+    updatedAt: true,
+  })
+  .extend({
+    logo: z.string().optional(),
+  });
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 export type InsertExpense = z.infer<typeof insertExpenseSchema>;
 export type User = typeof users.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
 export type Expense = typeof expenses.$inferSelect;
+export type BusinessSettings = typeof businessSettings.$inferSelect;
+export type InsertBusinessSettings = z.infer<typeof insertBusinessSettingsSchema>;

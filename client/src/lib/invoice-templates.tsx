@@ -1,18 +1,35 @@
 import { type ReactNode } from "react";
 import { type Invoice } from "@shared/schema";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 export interface InvoiceTemplateProps {
   invoice: Invoice;
   className?: string;
 }
 
+function useBusinessInfo() {
+  const { data: settings } = useQuery({
+    queryKey: ["/api/business-settings/1"], // Mock user ID = 1
+  });
+  return settings;
+}
+
 // Modern template with clean lines and minimalist design
 export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
+  const businessInfo = useBusinessInfo();
+
   return (
     <div className={cn("bg-white p-8 rounded-lg shadow-lg", className)}>
       <div className="flex justify-between items-start mb-8">
         <div>
+          {businessInfo?.logo && (
+            <img 
+              src={businessInfo.logo} 
+              alt="Business logo" 
+              className="h-16 w-auto mb-4"
+            />
+          )}
           <h1 className="text-4xl font-bold text-gray-800">INVOICE</h1>
           <p className="text-gray-600 mt-1">#{invoice.invoiceNumber}</p>
         </div>
@@ -22,9 +39,32 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
         </div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-700 mb-2">Bill To:</h2>
-        <p className="text-xl text-gray-800">{invoice.clientName}</p>
+      <div className="grid grid-cols-2 gap-8 mb-8">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">From</h2>
+          {businessInfo ? (
+            <>
+              <p className="font-medium">{businessInfo.businessName}</p>
+              <p className="text-gray-600">{businessInfo.address}</p>
+              <p className="text-gray-600">
+                {businessInfo.city}, {businessInfo.state} {businessInfo.zipCode}
+              </p>
+              {businessInfo.phone && (
+                <p className="text-gray-600">{businessInfo.phone}</p>
+              )}
+              {businessInfo.email && (
+                <p className="text-gray-600">{businessInfo.email}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-gray-500 italic">No business information set</p>
+          )}
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">Bill To</h2>
+          <p className="text-xl text-gray-800">{invoice.clientName}</p>
+        </div>
       </div>
 
       <div className="mb-8">
@@ -34,11 +74,15 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
 
       <div className="flex justify-between items-center pt-6 border-t border-gray-200">
         <div>
-          <p className="text-sm text-gray-500">Created on {new Date(invoice.createdAt).toLocaleDateString()}</p>
+          <p className="text-sm text-gray-500">
+            Created on {new Date(invoice.createdAt).toLocaleDateString()}
+          </p>
         </div>
         <div className="text-right">
           <p className="text-sm text-gray-600">Amount Due</p>
-          <p className="text-3xl font-bold text-gray-800">${Number(invoice.amount).toFixed(2)}</p>
+          <p className="text-3xl font-bold text-gray-800">
+            ${Number(invoice.amount).toFixed(2)}
+          </p>
         </div>
       </div>
     </div>
@@ -47,6 +91,7 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
 
 // Professional template with traditional business styling
 export function ProfessionalTemplate({ invoice, className }: InvoiceTemplateProps) {
+  const businessInfo = useBusinessInfo();
   return (
     <div className={cn("bg-white p-8 rounded-lg shadow-lg", className)}>
       <div className="border-b-2 border-blue-600 pb-4 mb-6">
@@ -60,9 +105,23 @@ export function ProfessionalTemplate({ invoice, className }: InvoiceTemplateProp
       <div className="grid grid-cols-2 gap-8 mb-8">
         <div>
           <h2 className="text-lg font-serif text-blue-800 mb-2">From</h2>
-          <p className="text-gray-700">Your Company Name</p>
-          <p className="text-gray-600">123 Business Street</p>
-          <p className="text-gray-600">Business City, ST 12345</p>
+          {businessInfo ? (
+            <>
+              <p className="font-medium">{businessInfo.businessName}</p>
+              <p className="text-gray-600">{businessInfo.address}</p>
+              <p className="text-gray-600">
+                {businessInfo.city}, {businessInfo.state} {businessInfo.zipCode}
+              </p>
+              {businessInfo.phone && (
+                <p className="text-gray-600">{businessInfo.phone}</p>
+              )}
+              {businessInfo.email && (
+                <p className="text-gray-600">{businessInfo.email}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-gray-500 italic">No business information set</p>
+          )}
         </div>
         <div>
           <h2 className="text-lg font-serif text-blue-800 mb-2">Bill To</h2>
@@ -94,6 +153,7 @@ export function ProfessionalTemplate({ invoice, className }: InvoiceTemplateProp
 
 // Creative template with modern artistic elements
 export function CreativeTemplate({ invoice, className }: InvoiceTemplateProps) {
+  const businessInfo = useBusinessInfo();
   return (
     <div className={cn("bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-lg shadow-lg", className)}>
       <div className="flex justify-between items-start mb-8">
@@ -109,11 +169,33 @@ export function CreativeTemplate({ invoice, className }: InvoiceTemplateProps) {
         </div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-700 mb-2">For</h2>
-        <p className="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          {invoice.clientName}
-        </p>
+      <div className="grid grid-cols-2 gap-8 mb-8">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">From</h2>
+          {businessInfo ? (
+            <>
+              <p className="font-medium">{businessInfo.businessName}</p>
+              <p className="text-gray-600">{businessInfo.address}</p>
+              <p className="text-gray-600">
+                {businessInfo.city}, {businessInfo.state} {businessInfo.zipCode}
+              </p>
+              {businessInfo.phone && (
+                <p className="text-gray-600">{businessInfo.phone}</p>
+              )}
+              {businessInfo.email && (
+                <p className="text-gray-600">{businessInfo.email}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-gray-500 italic">No business information set</p>
+          )}
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">For</h2>
+          <p className="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            {invoice.clientName}
+          </p>
+        </div>
       </div>
 
       <div className="mb-8 bg-white bg-opacity-50 p-6 rounded-lg backdrop-blur-sm">
