@@ -2,19 +2,22 @@ import { cn } from "@/lib/utils";
 
 interface LogoProps {
   className?: string;
+  showText?: boolean;
 }
 
-export function Logo({ className }: LogoProps) {
+export function Logo({ className, showText = true }: LogoProps) {
   return (
-    <div className={cn("flex items-center gap-3", className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       <img 
         src="/assets/proinvoice-logo.jpg" 
-        alt="ProInvoice"
-        className="h-6 w-auto"
+        alt="ProInvoice Logo"
+        className="h-8 w-auto object-contain"
       />
-      <span className="text-sm text-muted-foreground">
-        AI-Powered Invoice Generator
-      </span>
+      {showText && (
+        <span className="text-xs text-gray-500 hidden md:block">
+          AI-Powered Invoice Generator 
+        </span>
+      )}
     </div>
   );
 }
