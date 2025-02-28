@@ -88,116 +88,122 @@ export default function CreateInvoice() {
       <h1 className="text-3xl font-bold mb-8">Create New Invoice</h1>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        <Card className="p-6 order-2 lg:order-1">
-          <Form {...form}>
-            <form 
-              onSubmit={form.handleSubmit((data) => mutation.mutate(data))} 
-              className="space-y-4"
-            >
-              <FormField
-                control={form.control}
-                name="template"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Template Style</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a template" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Object.entries(templates).map(([id, template]) => (
-                          <SelectItem key={id} value={id}>
-                            {template.name} - {template.description}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="clientName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Client Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter client name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Amount</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter description or let AI generate one" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="dueDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Due Date</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="date" 
-                        {...field}
-                        min={new Date().toISOString().split('T')[0]}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={mutation.isPending}
+        {/* Form */}
+        <div className="lg:order-1 order-2">
+          <Card className="p-6">
+            <Form {...form}>
+              <form 
+                onSubmit={form.handleSubmit((data) => mutation.mutate(data))} 
+                className="space-y-4"
               >
-                {mutation.isPending ? "Creating..." : "Create Invoice"}
-              </Button>
-            </form>
-          </Form>
-        </Card>
+                <FormField
+                  control={form.control}
+                  name="template"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Template Style</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a template" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.entries(templates).map(([id, template]) => (
+                            <SelectItem key={id} value={id}>
+                              {template.name} - {template.description}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-        <div className="order-1 lg:order-2">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          <div className="overflow-x-auto">
+                <FormField
+                  control={form.control}
+                  name="clientName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Client Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter client name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amount</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter description or let AI generate one" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="dueDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Due Date</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="date" 
+                          {...field}
+                          min={new Date().toISOString().split('T')[0]}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={mutation.isPending}
+                >
+                  {mutation.isPending ? "Creating..." : "Create Invoice"}
+                </Button>
+              </form>
+            </Form>
+          </Card>
+        </div>
+
+        {/* Preview */}
+        <div className="lg:order-2 order-1 lg:sticky lg:top-24 lg:self-start">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Preview</h2>
+          </div>
+          <div className="overflow-x-auto bg-gray-50 rounded-lg">
             <InvoicePreview invoice={previewData} />
           </div>
         </div>
