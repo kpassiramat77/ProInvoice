@@ -6,10 +6,9 @@ import Dashboard from "@/pages/dashboard";
 import CreateInvoice from "@/pages/create-invoice";
 import BusinessSettings from "@/pages/business-settings";
 import NotFound from "@/pages/not-found";
-import { Building2, FileText, PlusCircle, Menu, X } from "lucide-react";
+import { Building2, FileText, PlusCircle, Menu } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -30,7 +29,7 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
         className={cn(
           "flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer",
           "hover:bg-primary/10",
-          isActive && "bg-primary/10 text-primary"
+          isActive && "bg-primary/10 text-primary font-medium"
         )}
       >
         {children}
@@ -67,13 +66,13 @@ function MobileNav() {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left">
+      <SheetContent side="left" className="w-[300px]">
         <SheetHeader>
           <SheetTitle>
             <Logo />
           </SheetTitle>
         </SheetHeader>
-        <nav className="flex flex-col gap-2 mt-4">
+        <nav className="flex flex-col gap-2 mt-8">
           <NavigationLinks />
         </nav>
       </SheetContent>
