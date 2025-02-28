@@ -29,19 +29,30 @@ export const expenses = pgTable("expenses", {
   date: timestamp("date").notNull(),
 });
 
+// Extend the insert schemas with proper validation
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
 });
 
-export const insertInvoiceSchema = createInsertSchema(invoices).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertInvoiceSchema = createInsertSchema(invoices)
+  .omit({
+    id: true,
+    createdAt: true,
+  })
+  .extend({
+    amount: z.number().positive("Amount must be greater than 0"),
+    dueDate: z.string().transform((date) => new Date(date)),
+  });
 
-export const insertExpenseSchema = createInsertSchema(expenses).omit({
-  id: true,
-});
+export const insertExpenseSchema = createInsertSchema(expenses)
+  .omit({
+    id: true,
+  })
+  .extend({
+    amount: z.number().positive("Amount must be greater than 0"),
+    date: z.string().transform((date) => new Date(date)),
+  });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
