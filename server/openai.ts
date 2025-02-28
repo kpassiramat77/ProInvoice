@@ -14,21 +14,25 @@ export async function generateInvoiceDescription(details: {
       messages: [
         {
           role: "system",
-          content: "You are a professional invoice writer. Create a clear, detailed, and professional description for an invoice based on the provided details. The description should be concise but comprehensive.",
+          content: "Generate a clear, professional invoice description based on the client name, amount, and any services provided. Keep it concise but detailed.",
         },
         {
           role: "user",
-          content: JSON.stringify(details),
+          content: `Generate an invoice description for client "${details.clientName}" for amount $${details.amount}${details.services.length ? ` for services: ${details.services.join(", ")}` : ""}.`,
         },
       ],
-      response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
-    return result.description;
+    const description = response.choices[0].message.content;
+    if (!description) {
+      throw new Error("Failed to generate description");
+    }
+
+    return description;
   } catch (error) {
     console.error("OpenAI API error:", error);
-    throw new Error("Failed to generate invoice description");
+    // Return a default description instead of throwing
+    return `Professional services provided to ${details.clientName}`;
   }
 }
 
@@ -46,11 +50,14 @@ export async function categorizeExpense(description: string): Promise<string> {
           content: description,
         },
       ],
-      response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
-    return result.category;
+    const category = response.choices[0].message.content;
+    if (!category || !["Office Supplies", "Travel", "Software", "Hardware", "Marketing", "Other"].includes(category)) {
+      return "Other";
+    }
+
+    return category;
   } catch (error) {
     console.error("OpenAI API error:", error);
     return "Other";

@@ -27,13 +27,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const data = insertInvoiceSchema.parse(req.body);
 
-      // Generate AI description if not provided
+      // If no description is provided, try to generate one
       if (!data.description) {
-        data.description = await generateInvoiceDescription({
-          clientName: data.clientName,
-          amount: Number(data.amount),
-          services: req.body.services || [],
-        });
+        try {
+          data.description = await generateInvoiceDescription({
+            clientName: data.clientName,
+            amount: Number(data.amount),
+            services: req.body.services || [],
+          });
+        } catch (error) {
+          // If AI generation fails, use a default description
+          data.description = `Professional services provided to ${data.clientName}`;
+        }
       }
 
       const invoice = await storage.createInvoice(data);
