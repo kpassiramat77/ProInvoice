@@ -59,32 +59,40 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "lineItems",
+  });
+
+  const watchLineItems = form.watch("lineItems") || [];
+  const totalAmount = watchLineItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
   // Update form when invoice data is loaded
   React.useEffect(() => {
     if (invoice) {
       form.reset({
         ...invoice,
         dueDate: new Date(invoice.dueDate).toISOString().split('T')[0],
+        lineItems: invoice.lineItems.map(item => ({
+          ...item,
+          quantity: Number(item.quantity),
+          unitPrice: Number(item.unitPrice),
+          amount: Number(item.amount)
+        }))
       });
     }
   }, [invoice, form]);
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "lineItems",
-  });
-
-  const watchLineItems = form.watch("lineItems");
-  const totalAmount = watchLineItems.reduce((sum, item) => sum + (item.amount || 0), 0);
-
   const updateLineItemAmount = (index: number) => {
     const lineItem = watchLineItems[index];
-    const amount = (lineItem.quantity || 0) * (lineItem.unitPrice || 0);
-    form.setValue(`lineItems.${index}.amount`, amount);
+    if (lineItem) {
+      const amount = (Number(lineItem.quantity) || 0) * (Number(lineItem.unitPrice) || 0);
+      form.setValue(`lineItems.${index}.amount`, amount);
+    }
   };
 
   const mutation = useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async (data: any) => {
       const response = await apiRequest("PATCH", `/api/invoices/${params.id}`, data);
       return response.json();
     },
@@ -96,7 +104,7 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
       });
       setLocation("/dashboard");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
         description: error.message,
