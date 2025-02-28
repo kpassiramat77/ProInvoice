@@ -5,7 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Calendar, DollarSign } from "lucide-react";
 
 export interface InvoiceTemplateProps {
-  invoice: Invoice;
+  invoice: Invoice & {
+    lineItems: Array<{
+      description: string;
+      quantity: number;
+      unitPrice: number;
+      amount: number;
+    }>;
+  };
   className?: string;
 }
 
@@ -20,14 +27,7 @@ function useBusinessInfo() {
 export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
   const businessInfo = useBusinessInfo();
 
-  const lineItems = [
-    {
-      description: invoice.description || "Professional Services",
-      quantity: 1,
-      unitPrice: Number(invoice.amount),
-      amount: Number(invoice.amount)
-    }
-  ];
+  const totalAmount = invoice.lineItems.reduce((sum, item) => sum + (item.amount || 0), 0);
 
   return (
     <div className={cn("bg-white p-10 rounded-xl shadow-lg", className)}>
@@ -49,7 +49,7 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
             <Calendar className="h-5 w-5" />
             <p className="text-lg">Issue Date</p>
           </div>
-          <p className="text-xl">{new Date(invoice.createdAt).toLocaleDateString()}</p>
+          <p className="text-xl">{new Date(invoice.createdAt || new Date()).toLocaleDateString()}</p>
           <div className="mt-4">
             <p className="text-gray-600">Due Date</p>
             <p className="text-xl font-medium">{new Date(invoice.dueDate).toLocaleDateString()}</p>
@@ -97,12 +97,12 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
             </tr>
           </thead>
           <tbody>
-            {lineItems.map((item, index) => (
+            {invoice.lineItems.map((item, index) => (
               <tr key={index} className="border-b border-gray-100">
                 <td className="py-4 px-4">{item.description}</td>
                 <td className="py-4 px-4 text-right">{item.quantity}</td>
-                <td className="py-4 px-4 text-right">${item.unitPrice.toFixed(2)}</td>
-                <td className="py-4 px-4 text-right">${item.amount.toFixed(2)}</td>
+                <td className="py-4 px-4 text-right">${item.unitPrice?.toFixed(2) || '0.00'}</td>
+                <td className="py-4 px-4 text-right">${item.amount?.toFixed(2) || '0.00'}</td>
               </tr>
             ))}
           </tbody>
@@ -121,7 +121,7 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
           <div className="flex items-center justify-end gap-2">
             <DollarSign className="h-6 w-6 text-primary" />
             <p className="text-4xl font-bold text-primary">
-              {Number(invoice.amount).toFixed(2)}
+              ${totalAmount.toFixed(2)}
             </p>
           </div>
         </div>
