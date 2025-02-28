@@ -2,8 +2,6 @@ import { type User, type Invoice, type Expense, type InsertUser, type InsertInvo
 import { db } from "./db";
 import { users, invoices, expenses } from "@shared/schema";
 import { eq } from "drizzle-orm";
-import type { User as DrizzleUser, Invoice as DrizzleInvoice, Expense as DrizzleExpense, InsertUser as DrizzleInsertUser, InsertInvoice as DrizzleInsertInvoice, InsertExpense as DrizzleInsertExpense } from "@shared/schema";
-
 
 export interface IStorage {
   // User operations
@@ -41,7 +39,11 @@ export class DatabaseStorage implements IStorage {
   async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
     const [invoice] = await db
       .insert(invoices)
-      .values({ ...insertInvoice, createdAt: new Date() })
+      .values({
+        ...insertInvoice,
+        amount: insertInvoice.amount.toString(),
+        createdAt: new Date()
+      })
       .returning();
     return invoice;
   }
@@ -69,7 +71,10 @@ export class DatabaseStorage implements IStorage {
   async createExpense(insertExpense: InsertExpense): Promise<Expense> {
     const [expense] = await db
       .insert(expenses)
-      .values(insertExpense)
+      .values({
+        ...insertExpense,
+        amount: insertExpense.amount.toString()
+      })
       .returning();
     return expense;
   }
