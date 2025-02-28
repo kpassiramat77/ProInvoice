@@ -18,6 +18,7 @@ export const invoices = pgTable("invoices", {
   status: text("status").notNull(), // pending, paid, overdue
   dueDate: timestamp("due_date").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+  template: text("template").notNull().default("modern"),
 });
 
 export const expenses = pgTable("expenses", {
@@ -43,6 +44,7 @@ export const insertInvoiceSchema = createInsertSchema(invoices)
   .extend({
     amount: z.number().positive("Amount must be greater than 0"),
     dueDate: z.string().transform((date) => new Date(date)),
+    template: z.enum(["modern", "professional", "creative"]).default("modern"),
   });
 
 export const insertExpenseSchema = createInsertSchema(expenses)

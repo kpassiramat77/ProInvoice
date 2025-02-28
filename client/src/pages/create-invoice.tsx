@@ -15,9 +15,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { templates } from "@/lib/invoice-templates";
 
 const defaultDueDate = new Date();
 defaultDueDate.setDate(defaultDueDate.getDate() + 30);
@@ -37,6 +45,7 @@ export default function CreateInvoice() {
       status: "pending",
       dueDate: defaultDueDate.toISOString().split('T')[0],
       userId: 1, // Mock user ID
+      template: "modern",
     },
   });
 
@@ -49,7 +58,6 @@ export default function CreateInvoice() {
       return response.json();
     },
     onSuccess: () => {
-      // Invalidate the invoices query to refresh the dashboard
       queryClient.invalidateQueries({ queryKey: ["/api/invoices/1"] });
       toast({
         title: "Invoice created",
@@ -86,6 +94,31 @@ export default function CreateInvoice() {
               onSubmit={form.handleSubmit((data) => mutation.mutate(data))} 
               className="space-y-4"
             >
+              <FormField
+                control={form.control}
+                name="template"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Template Style</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a template" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.entries(templates).map(([id, template]) => (
+                          <SelectItem key={id} value={id}>
+                            {template.name} - {template.description}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="clientName"
