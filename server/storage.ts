@@ -1,94 +1,82 @@
 import { type User, type Invoice, type Expense, type InsertUser, type InsertInvoice, type InsertExpense } from "@shared/schema";
+import { db } from "./db";
+import { users, invoices, expenses } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import type { User as DrizzleUser, Invoice as DrizzleInvoice, Expense as DrizzleExpense, InsertUser as DrizzleInsertUser, InsertInvoice as DrizzleInsertInvoice, InsertExpense as DrizzleInsertExpense } from "@shared/schema";
+
 
 export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Invoice operations
   createInvoice(invoice: InsertInvoice): Promise<Invoice>;
   getInvoice(id: number): Promise<Invoice | undefined>;
   getInvoicesByUserId(userId: number): Promise<Invoice[]>;
   updateInvoiceStatus(id: number, status: string): Promise<Invoice>;
-  
+
   // Expense operations
   createExpense(expense: InsertExpense): Promise<Expense>;
   getExpensesByUserId(userId: number): Promise<Expense[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private invoices: Map<number, Invoice>;
-  private expenses: Map<number, Expense>;
-  private currentId: { users: number; invoices: number; expenses: number };
-
-  constructor() {
-    this.users = new Map();
-    this.invoices = new Map();
-    this.expenses = new Map();
-    this.currentId = { users: 1, invoices: 1, expenses: 1 };
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId.users++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
-    const id = this.currentId.invoices++;
-    const invoice: Invoice = {
-      ...insertInvoice,
-      id,
-      createdAt: new Date(),
-    };
-    this.invoices.set(id, invoice);
+    const [invoice] = await db
+      .insert(invoices)
+      .values({ ...insertInvoice, createdAt: new Date() })
+      .returning();
     return invoice;
   }
 
   async getInvoice(id: number): Promise<Invoice | undefined> {
-    return this.invoices.get(id);
+    const [invoice] = await db.select().from(invoices).where(eq(invoices.id, id));
+    return invoice;
   }
 
   async getInvoicesByUserId(userId: number): Promise<Invoice[]> {
-    return Array.from(this.invoices.values()).filter(
-      (invoice) => invoice.userId === userId,
-    );
+    return await db.select().from(invoices).where(eq(invoices.userId, userId));
   }
 
   async updateInvoiceStatus(id: number, status: string): Promise<Invoice> {
-    const invoice = this.invoices.get(id);
+    const [invoice] = await db
+      .update(invoices)
+      .set({ status })
+      .where(eq(invoices.id, id))
+      .returning();
+
     if (!invoice) throw new Error("Invoice not found");
-    
-    const updatedInvoice = { ...invoice, status };
-    this.invoices.set(id, updatedInvoice);
-    return updatedInvoice;
+    return invoice;
   }
 
   async createExpense(insertExpense: InsertExpense): Promise<Expense> {
-    const id = this.currentId.expenses++;
-    const expense: Expense = { ...insertExpense, id };
-    this.expenses.set(id, expense);
+    const [expense] = await db
+      .insert(expenses)
+      .values(insertExpense)
+      .returning();
     return expense;
   }
 
   async getExpensesByUserId(userId: number): Promise<Expense[]> {
-    return Array.from(this.expenses.values()).filter(
-      (expense) => expense.userId === userId,
-    );
+    return await db.select().from(expenses).where(eq(expenses.userId, userId));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
