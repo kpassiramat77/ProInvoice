@@ -41,81 +41,97 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
   const totalAmount = invoice.lineItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
   return (
-    <div className={cn("bg-white p-8 rounded-xl shadow-lg", className)}>
+    <div className={cn("bg-white p-8", className)}>
       {/* Header */}
-      <div className="flex justify-between items-start mb-10">
-        <div>
-          {businessInfo?.logo && (
-            <img 
-              src={businessInfo.logo} 
-              alt="Business logo" 
-              className="h-16 w-auto mb-4 object-contain"
-            />
-          )}
-          <h1 className="text-3xl font-bold text-gray-900">INVOICE</h1>
-          <p className="text-gray-500 mt-1">#{invoice.invoiceNumber}</p>
-        </div>
-        <div className="text-right space-y-1">
-          <p className="text-sm text-gray-500">Issue Date</p>
-          <p className="text-gray-700">{new Date(invoice.createdAt || new Date()).toLocaleDateString()}</p>
-          <p className="text-sm text-gray-500 mt-2">Due Date</p>
-          <p className="text-gray-700">{new Date(invoice.dueDate).toLocaleDateString()}</p>
+      <div className="mb-12">
+        <div className="flex justify-between">
+          <div>
+            {businessInfo?.logo && (
+              <img 
+                src={businessInfo.logo} 
+                alt="Business logo" 
+                className="h-12 w-auto mb-4 object-contain"
+              />
+            )}
+          </div>
+          <div className="text-right">
+            <h1 className="text-4xl font-bold text-[#1e3a8a]">INVOICE</h1>
+            <p className="text-gray-600 mt-1">#{invoice.invoiceNumber}</p>
+          </div>
         </div>
       </div>
 
-      {/* Address Grid */}
-      <div className="grid grid-cols-2 gap-8 mb-10">
+      {/* Invoice Info Grid */}
+      <div className="grid grid-cols-2 gap-x-12 mb-12">
         <div>
-          <h2 className="text-sm font-medium text-gray-500 mb-3">From</h2>
+          <p className="text-sm font-medium text-gray-500 mb-1">From</p>
           {businessInfo ? (
-            <div className="space-y-1">
-              <p className="text-gray-900 font-medium">{businessInfo.businessName}</p>
+            <div>
+              <p className="text-base font-semibold">{businessInfo.businessName}</p>
               <p className="text-gray-600">{businessInfo.address}</p>
               <p className="text-gray-600">
                 {businessInfo.city}, {businessInfo.state} {businessInfo.zipCode}
               </p>
-              {businessInfo.phone && (
-                <div className="flex items-center gap-1 text-gray-600">
-                  <Phone className="h-4 w-4" />
-                  <p>{businessInfo.phone}</p>
-                </div>
-              )}
-              {businessInfo.email && (
-                <div className="flex items-center gap-1 text-gray-600">
-                  <Mail className="h-4 w-4" />
-                  <p>{businessInfo.email}</p>
-                </div>
-              )}
+              {businessInfo.phone && <p className="text-gray-600">{businessInfo.phone}</p>}
+              {businessInfo.email && <p className="text-gray-600">{businessInfo.email}</p>}
             </div>
           ) : (
             <p className="text-gray-500 italic">No business information set</p>
           )}
         </div>
         <div>
-          <h2 className="text-sm font-medium text-gray-500 mb-3">For</h2>
-          <p className="text-gray-900 font-medium">{invoice.clientName}</p>
+          <div className="mb-8">
+            <p className="text-sm font-medium text-gray-500 mb-1">Bill To</p>
+            <p className="text-base font-semibold">{invoice.clientName}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm font-medium text-gray-500 mb-1">Invoice Date</p>
+              <p className="text-gray-600">
+                {new Date(invoice.createdAt || new Date()).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric"
+                })}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500 mb-1">Due Date</p>
+              <p className="text-gray-600">
+                {new Date(invoice.dueDate).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric"
+                })}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Line Items */}
-      <div className="mb-10">
-        <div className="bg-gray-50 rounded-lg overflow-hidden">
+      <div className="mb-8">
+        <div className="bg-gray-50 rounded-md overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 text-gray-600 font-medium">Description</th>
-                <th className="text-right py-3 px-4 text-gray-600 font-medium">Qty</th>
-                <th className="text-right py-3 px-4 text-gray-600 font-medium">Rate</th>
-                <th className="text-right py-3 px-4 text-gray-600 font-medium">Amount</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Description</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-gray-500">Qty</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-gray-500">Rate</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-gray-500">Amount</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {invoice.lineItems.map((item, index) => (
-                <tr key={index} className="border-b border-gray-100">
-                  <td className="py-4 px-4 text-gray-800">{item.description}</td>
-                  <td className="py-4 px-4 text-right text-gray-800">{item.quantity}</td>
-                  <td className="py-4 px-4 text-right text-gray-800">${Number(item.unitPrice).toFixed(2)}</td>
-                  <td className="py-4 px-4 text-right text-gray-800">${Number(item.amount).toFixed(2)}</td>
+                <tr key={index}>
+                  <td className="py-4 px-4 text-sm text-gray-800">{item.description}</td>
+                  <td className="py-4 px-4 text-sm text-right text-gray-800">{item.quantity}</td>
+                  <td className="py-4 px-4 text-sm text-right text-gray-800">
+                    ${Number(item.unitPrice).toFixed(2)}
+                  </td>
+                  <td className="py-4 px-4 text-sm text-right text-gray-800">
+                    ${Number(item.amount).toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -124,14 +140,27 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
       </div>
 
       {/* Total */}
-      <div className="flex justify-between items-center py-4 border-t border-gray-200">
-        <p className="text-sm text-gray-500">
-          Thank you for your business
-        </p>
-        <div>
-          <p className="text-sm text-gray-500 mb-1">Total Amount</p>
-          <p className="text-3xl font-bold text-gray-900">${totalAmount.toFixed(2)}</p>
+      <div className="flex justify-end pt-4 border-t border-gray-200">
+        <div className="w-64">
+          <div className="flex justify-between mb-2">
+            <p className="text-sm text-gray-500">Subtotal</p>
+            <p className="text-sm text-gray-800">${totalAmount.toFixed(2)}</p>
+          </div>
+          <div className="flex justify-between mb-2">
+            <p className="text-sm text-gray-500">Tax</p>
+            <p className="text-sm text-gray-800">$0.00</p>
+          </div>
+          <div className="flex justify-between pt-2 border-t border-gray-200">
+            <p className="text-base font-medium text-gray-800">Total</p>
+            <p className="text-base font-medium text-gray-800">${totalAmount.toFixed(2)}</p>
+          </div>
         </div>
+      </div>
+
+      {/* Notes */}
+      <div className="mt-12 text-sm text-gray-500">
+        <p>Thank you for your business!</p>
+        <p>Payment is due within 30 days of invoice date.</p>
       </div>
     </div>
   );
