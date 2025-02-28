@@ -6,7 +6,14 @@ import type { Invoice } from "@shared/schema";
 import { templates, type TemplateId } from "@/lib/invoice-templates";
 
 interface InvoicePreviewProps {
-  invoice: Invoice;
+  invoice: Invoice & {
+    lineItems: Array<{
+      description: string;
+      quantity: number;
+      unitPrice: number;
+      amount: number;
+    }>;
+  };
 }
 
 export function InvoicePreview({ invoice }: InvoicePreviewProps) {

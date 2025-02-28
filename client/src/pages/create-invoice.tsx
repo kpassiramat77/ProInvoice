@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "wouter";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertInvoiceSchema } from "@shared/schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { templates } from "@/lib/invoice-templates";
-import { FileText } from "lucide-react";
+import { FileText, Plus, Trash2 } from "lucide-react";
 
 const defaultDueDate = new Date();
 defaultDueDate.setDate(defaultDueDate.getDate() + 30);
@@ -42,20 +42,39 @@ export default function CreateInvoice() {
       clientName: "",
       invoiceNumber: `INV-${Date.now()}`,
       description: "",
-      amount: 0,
       status: "pending",
       dueDate: defaultDueDate.toISOString().split('T')[0],
       userId: 1, // Mock user ID
       template: "modern",
+      lineItems: [
+        {
+          description: "",
+          quantity: 1,
+          unitPrice: 0,
+          amount: 0,
+        }
+      ],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "lineItems",
+  });
+
+  const watchLineItems = form.watch("lineItems");
+  const totalAmount = watchLineItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+
+  // Update amount when quantity or unit price changes
+  const updateLineItemAmount = (index: number) => {
+    const lineItem = watchLineItems[index];
+    const amount = (lineItem.quantity || 0) * (lineItem.unitPrice || 0);
+    form.setValue(`lineItems.${index}.amount`, amount);
+  };
+
   const mutation = useMutation({
     mutationFn: async (data) => {
-      const response = await apiRequest("POST", "/api/invoices", {
-        ...data,
-        amount: Number(data.amount),
-      });
+      const response = await apiRequest("POST", "/api/invoices", data);
       return response.json();
     },
     onSuccess: () => {
@@ -74,15 +93,6 @@ export default function CreateInvoice() {
       });
     },
   });
-
-  const formValues = form.watch();
-  const previewData = {
-    ...formValues,
-    id: 0,
-    createdAt: new Date(),
-    amount: Number(formValues.amount) || 0,
-    dueDate: new Date(formValues.dueDate),
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/50">
@@ -144,44 +154,6 @@ export default function CreateInvoice() {
 
                   <FormField
                     control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Amount</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            className="bg-white"
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            className="bg-white"
-                            placeholder="Enter description or let AI generate one" 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
                     name="dueDate"
                     render={({ field }) => (
                       <FormItem>
@@ -198,6 +170,135 @@ export default function CreateInvoice() {
                       </FormItem>
                     )}
                   />
+
+                  {/* Line Items */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Line Items</h3>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => append({
+                          description: "",
+                          quantity: 1,
+                          unitPrice: 0,
+                          amount: 0,
+                        })}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Item
+                      </Button>
+                    </div>
+
+                    {fields.map((field, index) => (
+                      <div key={field.id} className="space-y-4 p-4 bg-gray-50 rounded-lg relative">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={() => remove(index)}
+                          disabled={fields.length === 1}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+
+                        <FormField
+                          control={form.control}
+                          name={`lineItems.${index}.description`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Description</FormLabel>
+                              <FormControl>
+                                <Input {...field} className="bg-white" placeholder="Item description" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-3 gap-4">
+                          <FormField
+                            control={form.control}
+                            name={`lineItems.${index}.quantity`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Quantity</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    step="1"
+                                    min="1"
+                                    className="bg-white"
+                                    {...field}
+                                    onChange={(e) => {
+                                      field.onChange(Number(e.target.value));
+                                      updateLineItemAmount(index);
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`lineItems.${index}.unitPrice`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Unit Price</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    className="bg-white"
+                                    {...field}
+                                    onChange={(e) => {
+                                      field.onChange(Number(e.target.value));
+                                      updateLineItemAmount(index);
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`lineItems.${index}.amount`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Amount</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    className="bg-white"
+                                    {...field}
+                                    disabled
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="flex justify-end pt-4 border-t">
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">Total Amount</p>
+                        <p className="text-2xl font-bold text-primary">
+                          ${totalAmount.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
                   <Button
                     type="submit"
@@ -217,7 +318,14 @@ export default function CreateInvoice() {
               <h2 className="text-xl font-semibold">Preview</h2>
             </div>
             <div className="overflow-hidden rounded-xl shadow-2xl">
-              <InvoicePreview invoice={previewData} />
+              <InvoicePreview 
+                invoice={{
+                  ...form.getValues(),
+                  id: 0,
+                  createdAt: new Date(),
+                  lineItems: watchLineItems,
+                }} 
+              />
             </div>
           </div>
         </div>
