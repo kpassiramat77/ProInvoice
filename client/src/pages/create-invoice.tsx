@@ -84,11 +84,11 @@ export default function CreateInvoice() {
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8">Create New Invoice</h1>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <Card className="p-6">
+      <div className="grid lg:grid-cols-2 gap-8">
+        <Card className="p-6 order-2 lg:order-1">
           <Form {...form}>
             <form 
               onSubmit={form.handleSubmit((data) => mutation.mutate(data))} 
@@ -195,9 +195,11 @@ export default function CreateInvoice() {
           </Form>
         </Card>
 
-        <div>
+        <div className="order-1 lg:order-2">
           <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          <InvoicePreview invoice={previewData} />
+          <div className="overflow-x-auto">
+            <InvoicePreview invoice={previewData} />
+          </div>
         </div>
       </div>
     </div>

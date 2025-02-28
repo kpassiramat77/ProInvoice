@@ -74,9 +74,9 @@ export default function BusinessSettings() {
         method: "POST",
         body: formData,
       });
-      
+
       if (!response.ok) throw new Error("Failed to upload logo");
-      
+
       const { url } = await response.json();
       form.setValue("logo", url);
     } catch (error) {
@@ -95,7 +95,7 @@ export default function BusinessSettings() {
         <h1 className="text-3xl font-bold">Business Settings</h1>
       </div>
 
-      <Card className="max-w-2xl mx-auto p-6">
+      <Card className="max-w-2xl mx-auto p-4 md:p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
             <div className="space-y-4">
@@ -127,7 +127,7 @@ export default function BusinessSettings() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="city"
@@ -171,7 +171,7 @@ export default function BusinessSettings() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="phone"
