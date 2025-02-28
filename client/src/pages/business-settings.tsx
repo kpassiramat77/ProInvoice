@@ -89,53 +89,27 @@ export default function BusinessSettings() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center gap-2 mb-8">
-        <Building2 className="h-6 w-6" />
-        <h1 className="text-3xl font-bold">Business Settings</h1>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/50">
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Building2 className="h-6 w-6 text-primary" />
+          </div>
+          <h1 className="text-3xl font-bold">Business Settings</h1>
+        </div>
 
-      <Card className="max-w-2xl mx-auto p-4 md:p-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="businessName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter your business name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter your business address" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="max-w-2xl mx-auto p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
+              <div className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="city"
+                  name="businessName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>City</FormLabel>
+                      <FormLabel>Business Name</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="City" />
+                        <Input {...field} className="bg-white" placeholder="Enter your business name" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -144,103 +118,133 @@ export default function BusinessSettings() {
 
                 <FormField
                   control={form.control}
-                  name="state"
+                  name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>State</FormLabel>
+                      <FormLabel>Address</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="State" />
+                        <Input {...field} className="bg-white" placeholder="Enter your business address" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <FormField
-                control={form.control}
-                name="zipCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ZIP Code</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="ZIP Code" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input {...field} className="bg-white" placeholder="City" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <FormControl>
+                          <Input {...field} className="bg-white" placeholder="State" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
-                  name="phone"
+                  name="zipCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone</FormLabel>
+                      <FormLabel>ZIP Code</FormLabel>
                       <FormControl>
-                        <Input {...field} type="tel" placeholder="Phone number" />
+                        <Input {...field} className="bg-white" placeholder="ZIP Code" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
+                          <Input {...field} className="bg-white" type="tel" placeholder="Phone number" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} className="bg-white" type="email" placeholder="Business email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="logo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Logo</FormLabel>
                       <FormControl>
-                        <Input {...field} type="email" placeholder="Business email" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="logo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo</FormLabel>
-                    <FormControl>
-                      <div className="flex items-center gap-4">
-                        {field.value && (
-                          <img
-                            src={field.value}
-                            alt="Business logo"
-                            className="h-12 w-12 object-contain"
+                        <div className="flex items-center gap-4">
+                          {field.value && (
+                            <img
+                              src={field.value}
+                              alt="Business logo"
+                              className="h-12 w-12 object-contain rounded-lg border border-gray-200"
+                            />
+                          )}
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            className="flex-1 bg-white"
                           />
-                        )}
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoUpload}
-                          className="flex-1"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={mutation.isPending}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              {mutation.isPending ? "Saving..." : "Save Settings"}
-            </Button>
-          </form>
-        </Form>
-      </Card>
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90"
+                disabled={mutation.isPending}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {mutation.isPending ? "Saving..." : "Save Settings"}
+              </Button>
+            </form>
+          </Form>
+        </Card>
+      </div>
     </div>
   );
 }
