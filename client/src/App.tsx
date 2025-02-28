@@ -6,9 +6,10 @@ import Dashboard from "@/pages/dashboard";
 import CreateInvoice from "@/pages/create-invoice";
 import BusinessSettings from "@/pages/business-settings";
 import NotFound from "@/pages/not-found";
-import { Building2, FileText, PlusCircle, Menu } from "lucide-react";
+import { Building2, FileText, PlusCircle, Menu, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -27,9 +28,9 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       <div 
         onClick={onClick}
         className={cn(
-          "flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors cursor-pointer",
+          "flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer",
           "hover:bg-primary/10",
-          isActive && "bg-primary/10 text-primary font-medium"
+          isActive && "bg-primary/10 text-primary"
         )}
       >
         {children}
@@ -66,13 +67,13 @@ function MobileNav() {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px]">
+      <SheetContent side="left">
         <SheetHeader>
           <SheetTitle>
             <Logo />
           </SheetTitle>
         </SheetHeader>
-        <nav className="flex flex-col gap-2 mt-8">
+        <nav className="flex flex-col gap-2 mt-4">
           <NavigationLinks />
         </nav>
       </SheetContent>
@@ -82,7 +83,7 @@ function MobileNav() {
 
 function DesktopNav() {
   return (
-    <nav className="hidden md:flex items-center gap-2">
+    <nav className="hidden md:flex items-center gap-1">
       <NavigationLinks />
     </nav>
   );
@@ -91,16 +92,18 @@ function DesktopNav() {
 function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between gap-4 px-4">
-        <div className="flex flex-1 items-center gap-4">
-          <Link href="/">
-            <div className="cursor-pointer">
-              <Logo />
-            </div>
-          </Link>
-          <DesktopNav />
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/">
+              <div className="cursor-pointer">
+                <Logo />
+              </div>
+            </Link>
+            <DesktopNav />
+          </div>
+          <MobileNav />
         </div>
-        <MobileNav />
       </div>
     </header>
   );
