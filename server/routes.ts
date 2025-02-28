@@ -52,6 +52,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/invoices/edit/:id", async (req, res) => {
+    try {
+      const invoice = await storage.getInvoice(Number(req.params.id));
+      if (!invoice) {
+        return res.status(404).json({ message: "Invoice not found" });
+      }
+      res.json(invoice);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/invoices/:id", async (req, res) => {
+    try {
+      const data = insertInvoiceSchema.parse(req.body);
+      const updatedInvoice = await storage.updateInvoice(Number(req.params.id), data);
+      res.json(updatedInvoice);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   app.delete("/api/invoices/:id", async (req, res) => {
     try {
       await storage.deleteInvoice(Number(req.params.id));

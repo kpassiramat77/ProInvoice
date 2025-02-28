@@ -14,6 +14,7 @@ export interface IStorage {
   getInvoice(id: number): Promise<(Invoice & { lineItems: LineItem[] }) | undefined>;
   getInvoicesByUserId(userId: number): Promise<(Invoice & { lineItems: LineItem[] })[]>;
   updateInvoiceStatus(id: number, status: string): Promise<Invoice>;
+  updateInvoice(id: number, invoice: InsertInvoice): Promise<Invoice & { lineItems: LineItem[] }>;
   deleteInvoice(id: number): Promise<void>;
 
   // Expense operations
@@ -110,6 +111,47 @@ export class DatabaseStorage implements IStorage {
 
     if (!invoice) throw new Error("Invoice not found");
     return invoice;
+  }
+
+  async updateInvoice(id: number, updateData: InsertInvoice): Promise<Invoice & { lineItems: LineItem[] }> {
+    return await db.transaction(async (tx) => {
+      // Update the invoice
+      const [invoice] = await tx
+        .update(invoices)
+        .set({
+          clientName: updateData.clientName,
+          description: updateData.description,
+          status: updateData.status,
+          dueDate: updateData.dueDate,
+          template: updateData.template,
+        })
+        .where(eq(invoices.id, id))
+        .returning();
+
+      if (!invoice) throw new Error("Invoice not found");
+
+      // Delete existing line items
+      await tx.delete(lineItems).where(eq(lineItems.invoiceId, id));
+
+      // Insert new line items
+      const items = await Promise.all(
+        updateData.lineItems.map(async (item) => {
+          const [lineItem] = await tx
+            .insert(lineItems)
+            .values({
+              invoiceId: id,
+              description: item.description,
+              quantity: item.quantity.toString(),
+              unitPrice: item.unitPrice.toString(),
+              amount: item.amount.toString(),
+            })
+            .returning();
+          return lineItem;
+        })
+      );
+
+      return { ...invoice, lineItems: items };
+    });
   }
 
   async deleteInvoice(id: number): Promise<void> {

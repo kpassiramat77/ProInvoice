@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import Dashboard from "@/pages/dashboard";
 import CreateInvoice from "@/pages/create-invoice";
+import EditInvoice from "@/pages/edit-invoice";
 import BusinessSettings from "@/pages/business-settings";
 import NotFound from "@/pages/not-found";
 import { Building2, FileText, PlusCircle, Menu } from "lucide-react";
@@ -114,6 +115,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/create-invoice" component={CreateInvoice} />
+      <Route path="/edit-invoice/:id" component={EditInvoice} />
       <Route path="/business-settings" component={BusinessSettings} />
       <Route component={NotFound} />
     </Switch>
