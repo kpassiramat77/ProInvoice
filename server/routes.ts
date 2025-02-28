@@ -52,6 +52,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/invoices/:id", async (req, res) => {
+    try {
+      await storage.deleteInvoice(Number(req.params.id));
+      res.json({ message: "Invoice deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   app.post("/api/expenses", async (req, res) => {
     try {
       const data = insertExpenseSchema.parse(req.body);

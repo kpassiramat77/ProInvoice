@@ -14,6 +14,7 @@ export interface IStorage {
   getInvoice(id: number): Promise<(Invoice & { lineItems: LineItem[] }) | undefined>;
   getInvoicesByUserId(userId: number): Promise<(Invoice & { lineItems: LineItem[] })[]>;
   updateInvoiceStatus(id: number, status: string): Promise<Invoice>;
+  deleteInvoice(id: number): Promise<void>;
 
   // Expense operations
   createExpense(expense: InsertExpense): Promise<Expense>;
@@ -109,6 +110,15 @@ export class DatabaseStorage implements IStorage {
 
     if (!invoice) throw new Error("Invoice not found");
     return invoice;
+  }
+
+  async deleteInvoice(id: number): Promise<void> {
+    return await db.transaction(async (tx) => {
+      // Delete line items first due to foreign key constraint
+      await tx.delete(lineItems).where(eq(lineItems.invoiceId, id));
+      // Then delete the invoice
+      await tx.delete(invoices).where(eq(invoices.id, id));
+    });
   }
 
   async createExpense(insertExpense: InsertExpense): Promise<Expense> {
