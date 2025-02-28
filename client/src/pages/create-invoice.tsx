@@ -109,8 +109,8 @@ export default function CreateInvoice() {
           <div className="lg:order-1 order-2">
             <Card className="p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <Form {...form}>
-                <form 
-                  onSubmit={form.handleSubmit((data) => mutation.mutate(data))} 
+                <form
+                  onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
                   className="space-y-6"
                 >
                   <FormField
@@ -159,8 +159,8 @@ export default function CreateInvoice() {
                       <FormItem>
                         <FormLabel>Due Date</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="date" 
+                          <Input
+                            type="date"
                             className="bg-white"
                             {...field}
                             min={new Date().toISOString().split('T')[0]}
@@ -318,13 +318,13 @@ export default function CreateInvoice() {
               <h2 className="text-xl font-semibold">Preview</h2>
             </div>
             <div className="overflow-hidden rounded-xl shadow-2xl">
-              <InvoicePreview 
+              <InvoicePreview
                 invoice={{
                   ...form.getValues(),
                   id: 0,
                   createdAt: new Date(),
                   lineItems: watchLineItems,
-                }} 
+                }}
               />
             </div>
           </div>

@@ -34,7 +34,7 @@ function LoadingSkeleton() {
 }
 
 export default function Dashboard() {
-  const { data: invoices, isLoading: loadingInvoices } = useQuery<Invoice[]>({
+  const { data: invoices, isLoading: loadingInvoices } = useQuery<(Invoice & { lineItems: Array<{ amount: number }> })[]>({
     queryKey: ["/api/invoices/1"], // Mock user ID = 1
   });
 
@@ -42,8 +42,12 @@ export default function Dashboard() {
     queryKey: ["/api/expenses/1"], // Mock user ID = 1
   });
 
-  // Calculate totals
-  const totalInvoices = invoices?.reduce((sum, inv) => sum + Number(inv.amount), 0) || 0;
+  // Calculate totals from line items
+  const totalInvoices = invoices?.reduce((sum, invoice) => {
+    const invoiceTotal = invoice.lineItems.reduce((itemSum, item) => itemSum + Number(item.amount), 0);
+    return sum + invoiceTotal;
+  }, 0) || 0;
+
   const totalExpenses = expenses?.reduce((sum, exp) => sum + Number(exp.amount), 0) || 0;
   const profit = totalInvoices - totalExpenses;
 
@@ -117,25 +121,28 @@ export default function Dashboard() {
             <LoadingSkeleton />
           ) : (
             <div className="space-y-4">
-              {invoices?.map((invoice) => (
-                <Card key={invoice.id} className="p-4 hover:shadow-lg transition-shadow">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium text-lg">{invoice.clientName}</p>
-                      <p className="text-sm text-gray-500 mb-2">
-                        #{invoice.invoiceNumber}
-                      </p>
-                      <InvoiceStatusBadge status={invoice.status} />
+              {invoices?.map((invoice) => {
+                const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
+                return (
+                  <Card key={invoice.id} className="p-4 hover:shadow-lg transition-shadow">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium text-lg">{invoice.clientName}</p>
+                        <p className="text-sm text-gray-500 mb-2">
+                          #{invoice.invoiceNumber}
+                        </p>
+                        <InvoiceStatusBadge status={invoice.status} />
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xl font-bold">${invoiceTotal.toFixed(2)}</p>
+                        <p className="text-sm text-gray-500">
+                          Due: {new Date(invoice.dueDate).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold">${invoice.amount}</p>
-                      <p className="text-sm text-gray-500">
-                        Due: {new Date(invoice.dueDate).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
               {invoices?.length === 0 && (
                 <p className="text-center text-gray-500 py-4">No invoices found</p>
               )}
@@ -167,7 +174,7 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                    <p className="font-bold text-lg">${expense.amount}</p>
+                    <p className="font-bold text-lg">${Number(expense.amount).toFixed(2)}</p>
                   </div>
                 ))}
                 {expenses?.length === 0 && (
