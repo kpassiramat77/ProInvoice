@@ -4,6 +4,18 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, DollarSign } from "lucide-react";
 
+// Define proper business settings type
+interface BusinessSettings {
+  businessName: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone?: string;
+  email?: string;
+  logo?: string;
+}
+
 export interface InvoiceTemplateProps {
   invoice: Invoice & {
     lineItems: Array<{
@@ -17,7 +29,7 @@ export interface InvoiceTemplateProps {
 }
 
 function useBusinessInfo() {
-  const { data: settings } = useQuery({
+  const { data: settings } = useQuery<BusinessSettings>({
     queryKey: ["/api/business-settings/1"], // Mock user ID = 1
   });
   return settings;
@@ -26,8 +38,7 @@ function useBusinessInfo() {
 // Modern template with clean lines and minimalist design
 export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
   const businessInfo = useBusinessInfo();
-
-  const totalAmount = invoice.lineItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const totalAmount = invoice.lineItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
   return (
     <div className={cn("bg-white p-10 rounded-xl shadow-lg", className)}>
@@ -80,7 +91,7 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
           )}
         </div>
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">Bill To</h2>
+          <h2 className="text-lg font-semibold text-gray-700 mb-3">For</h2>
           <p className="text-xl font-medium">{invoice.clientName}</p>
         </div>
       </div>
@@ -101,8 +112,8 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
               <tr key={index} className="border-b border-gray-100">
                 <td className="py-4 px-4">{item.description}</td>
                 <td className="py-4 px-4 text-right">{item.quantity}</td>
-                <td className="py-4 px-4 text-right">${item.unitPrice?.toFixed(2) || '0.00'}</td>
-                <td className="py-4 px-4 text-right">${item.amount?.toFixed(2) || '0.00'}</td>
+                <td className="py-4 px-4 text-right">${Number(item.unitPrice).toFixed(2)}</td>
+                <td className="py-4 px-4 text-right">${Number(item.amount).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
@@ -133,25 +144,27 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
 // Professional template with traditional business styling
 export function ProfessionalTemplate({ invoice, className }: InvoiceTemplateProps) {
   const businessInfo = useBusinessInfo();
+  const totalAmount = invoice.lineItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
   return (
     <div className={cn("bg-white p-10 rounded-xl shadow-lg", className)}>
       <div className="border-b-2 border-blue-600 pb-6 mb-8">
         <div className="flex justify-between items-start">
-          {businessInfo?.logo && (
-            <img 
-              src={businessInfo.logo} 
-              alt="Business logo" 
-              className="h-20 w-auto mb-4 object-contain"
-            />
-          )}
-          <div className="text-right">
+          <div>
+            {businessInfo?.logo && (
+              <img 
+                src={businessInfo.logo} 
+                alt="Business logo" 
+                className="h-20 w-auto mb-4 object-contain"
+              />
+            )}
             <h1 className="text-4xl font-serif font-bold text-blue-800">INVOICE</h1>
             <p className="text-lg text-gray-600 mt-2">#{invoice.invoiceNumber}</p>
           </div>
-        </div>
-        <div className="flex justify-between mt-4 text-gray-600">
-          <p>Issue Date: {new Date(invoice.createdAt).toLocaleDateString()}</p>
-          <p>Due Date: {new Date(invoice.dueDate).toLocaleDateString()}</p>
+          <div className="text-right">
+            <p className="text-gray-600">Issue Date: {new Date(invoice.createdAt || new Date()).toLocaleDateString()}</p>
+            <p className="text-gray-600 mt-2">Due Date: {new Date(invoice.dueDate).toLocaleDateString()}</p>
+          </div>
         </div>
       </div>
 
@@ -182,27 +195,42 @@ export function ProfessionalTemplate({ invoice, className }: InvoiceTemplateProp
         </div>
       </div>
 
+      {/* Line Items */}
       <div className="mb-12">
-        <h2 className="text-xl font-serif text-blue-800 mb-4">Description</h2>
-        <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-          <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {invoice.description}
-          </p>
-        </div>
+        <table className="w-full">
+          <thead>
+            <tr className="bg-blue-50">
+              <th className="py-3 px-4 text-left text-blue-800 font-serif">Description</th>
+              <th className="py-3 px-4 text-right text-blue-800 font-serif">Quantity</th>
+              <th className="py-3 px-4 text-right text-blue-800 font-serif">Unit Price</th>
+              <th className="py-3 px-4 text-right text-blue-800 font-serif">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoice.lineItems.map((item, index) => (
+              <tr key={index} className="border-b border-gray-200">
+                <td className="py-4 px-4">{item.description}</td>
+                <td className="py-4 px-4 text-right">{item.quantity}</td>
+                <td className="py-4 px-4 text-right">${Number(item.unitPrice).toFixed(2)}</td>
+                <td className="py-4 px-4 text-right">${Number(item.amount).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      <div className="border-t-2 border-blue-600 pt-6">
-        <div className="flex justify-between items-end">
-          <div className="text-sm text-gray-600">
-            <p>Please include invoice number with payment</p>
-            <p>Thank you for your business</p>
-          </div>
-          <div className="text-right">
-            <p className="text-lg font-serif text-blue-800 mb-2">Total Amount</p>
-            <p className="text-4xl font-bold text-blue-800">
-              ${Number(invoice.amount).toFixed(2)}
-            </p>
-          </div>
+      {/* Total */}
+      <div className="flex justify-between items-center pt-8 border-t-2 border-blue-600">
+        <div>
+          <p className="text-sm text-gray-600">
+            Thank you for choosing our services
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-lg font-serif text-blue-800 mb-2">Total Amount</p>
+          <p className="text-4xl font-bold text-blue-800">
+            ${totalAmount.toFixed(2)}
+          </p>
         </div>
       </div>
     </div>
@@ -212,6 +240,8 @@ export function ProfessionalTemplate({ invoice, className }: InvoiceTemplateProp
 // Creative template with modern artistic elements
 export function CreativeTemplate({ invoice, className }: InvoiceTemplateProps) {
   const businessInfo = useBusinessInfo();
+  const totalAmount = invoice.lineItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
   return (
     <div className={cn(
       "bg-gradient-to-br from-purple-50 to-pink-50 p-10 rounded-xl shadow-lg",
@@ -275,26 +305,42 @@ export function CreativeTemplate({ invoice, className }: InvoiceTemplateProps) {
         </div>
       </div>
 
+      {/* Line Items */}
       <div className="mb-12">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">Project Details</h2>
-        <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6">
-          <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {invoice.description}
-          </p>
-        </div>
+        <table className="w-full bg-white/80 backdrop-blur-sm rounded-lg overflow-hidden">
+          <thead>
+            <tr className="border-b border-purple-100">
+              <th className="py-3 px-4 text-left text-purple-600">Description</th>
+              <th className="py-3 px-4 text-right text-purple-600">Quantity</th>
+              <th className="py-3 px-4 text-right text-purple-600">Unit Price</th>
+              <th className="py-3 px-4 text-right text-purple-600">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoice.lineItems.map((item, index) => (
+              <tr key={index} className="border-b border-purple-50">
+                <td className="py-4 px-4">{item.description}</td>
+                <td className="py-4 px-4 text-right">{item.quantity}</td>
+                <td className="py-4 px-4 text-right">${Number(item.unitPrice).toFixed(2)}</td>
+                <td className="py-4 px-4 text-right">${Number(item.amount).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
+      {/* Total */}
       <div className="flex justify-between items-center pt-8">
         <div>
           <p className="text-sm text-gray-500">
-            Created {new Date(invoice.createdAt).toLocaleDateString()}
+            Created {new Date(invoice.createdAt || new Date()).toLocaleDateString()}
           </p>
         </div>
         <div className="text-right">
           <div className="inline-block bg-white/80 backdrop-blur-sm rounded-lg p-6">
             <p className="text-lg font-medium text-gray-700 mb-2">Total Due</p>
             <p className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              ${Number(invoice.amount).toFixed(2)}
+              ${totalAmount.toFixed(2)}
             </p>
           </div>
         </div>
