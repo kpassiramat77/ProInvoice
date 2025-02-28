@@ -20,8 +20,18 @@ function useBusinessInfo() {
 export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
   const businessInfo = useBusinessInfo();
 
+  const lineItems = [
+    {
+      description: invoice.description || "Professional Services",
+      quantity: 1,
+      unitPrice: Number(invoice.amount),
+      amount: Number(invoice.amount)
+    }
+  ];
+
   return (
     <div className={cn("bg-white p-10 rounded-xl shadow-lg", className)}>
+      {/* Header */}
       <div className="flex justify-between items-start mb-12">
         <div>
           {businessInfo?.logo && (
@@ -31,25 +41,28 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
               className="h-20 w-auto mb-6 object-contain"
             />
           )}
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            INVOICE
-          </h1>
-          <p className="text-gray-600 mt-2 text-lg">#{invoice.invoiceNumber}</p>
+          <h1 className="text-4xl font-bold text-primary">INVOICE</h1>
+          <p className="text-gray-600 mt-2">#{invoice.invoiceNumber}</p>
         </div>
         <div className="text-right">
           <div className="flex items-center justify-end gap-2 text-gray-600 mb-2">
             <Calendar className="h-5 w-5" />
-            <p className="text-lg">Due Date</p>
+            <p className="text-lg">Issue Date</p>
           </div>
-          <p className="text-xl font-semibold">{new Date(invoice.dueDate).toLocaleDateString()}</p>
+          <p className="text-xl">{new Date(invoice.createdAt).toLocaleDateString()}</p>
+          <div className="mt-4">
+            <p className="text-gray-600">Due Date</p>
+            <p className="text-xl font-medium">{new Date(invoice.dueDate).toLocaleDateString()}</p>
+          </div>
         </div>
       </div>
 
+      {/* Bill To/From */}
       <div className="grid grid-cols-2 gap-12 mb-12">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold text-gray-700 mb-3">From</h2>
           {businessInfo ? (
-            <>
+            <div className="space-y-2">
               <p className="text-xl font-medium">{businessInfo.businessName}</p>
               <p className="text-gray-600">{businessInfo.address}</p>
               <p className="text-gray-600">
@@ -61,33 +74,50 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
               {businessInfo.email && (
                 <p className="text-gray-600">{businessInfo.email}</p>
               )}
-            </>
+            </div>
           ) : (
             <p className="text-gray-500 italic">No business information set</p>
           )}
         </div>
-
         <div className="space-y-1">
           <h2 className="text-lg font-semibold text-gray-700 mb-3">Bill To</h2>
           <p className="text-xl font-medium">{invoice.clientName}</p>
         </div>
       </div>
 
+      {/* Line Items */}
       <div className="mb-12">
-        <h2 className="text-lg font-semibold text-gray-700 mb-3">Description</h2>
-        <div className="bg-gray-50 rounded-lg p-6">
-          <p className="text-gray-700 whitespace-pre-wrap">{invoice.description}</p>
-        </div>
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="py-3 px-4 text-left text-gray-600">Description</th>
+              <th className="py-3 px-4 text-right text-gray-600">Quantity</th>
+              <th className="py-3 px-4 text-right text-gray-600">Unit Price</th>
+              <th className="py-3 px-4 text-right text-gray-600">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lineItems.map((item, index) => (
+              <tr key={index} className="border-b border-gray-100">
+                <td className="py-4 px-4">{item.description}</td>
+                <td className="py-4 px-4 text-right">{item.quantity}</td>
+                <td className="py-4 px-4 text-right">${item.unitPrice.toFixed(2)}</td>
+                <td className="py-4 px-4 text-right">${item.amount.toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
+      {/* Total */}
       <div className="flex justify-between items-center pt-8 border-t border-gray-200">
         <div>
           <p className="text-sm text-gray-500">
-            Created {new Date(invoice.createdAt).toLocaleDateString()}
+            Thank you for your business
           </p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-gray-600 mb-1">Amount Due</p>
+          <p className="text-sm text-gray-600 mb-1">Total Amount</p>
           <div className="flex items-center justify-end gap-2">
             <DollarSign className="h-6 w-6 text-primary" />
             <p className="text-4xl font-bold text-primary">
@@ -277,7 +307,7 @@ export const templates = {
   modern: {
     name: "Modern",
     component: ModernTemplate,
-    description: "Clean and minimalist design",
+    description: "Clean and professional design",
   },
   professional: {
     name: "Professional",
