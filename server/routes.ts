@@ -27,23 +27,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const data = insertInvoiceSchema.parse(req.body);
 
-      // If no description is provided, try to generate one
-      if (!data.description) {
-        try {
-          data.description = await generateInvoiceDescription({
-            clientName: data.clientName,
-            amount: Number(data.amount),
-            services: req.body.services || [],
-          });
-        } catch (error) {
-          // If AI generation fails, use a default description
-          data.description = `Professional services provided to ${data.clientName}`;
+      // If no description is provided for any line item, try to generate one
+      data.lineItems = data.lineItems.map(item => {
+        if (!item.description) {
+          item.description = `Professional services for ${data.clientName}`;
         }
-      }
+        return item;
+      });
 
       const invoice = await storage.createInvoice(data);
       res.json(invoice);
     } catch (error: any) {
+      console.error("Invoice creation error:", error);
       res.status(400).json({ message: error.message });
     }
   });
