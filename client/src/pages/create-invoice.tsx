@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertInvoiceSchema } from "@shared/schema";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { InvoicePreview } from "@/components/invoice-preview";
@@ -25,6 +25,7 @@ defaultDueDate.setDate(defaultDueDate.getDate() + 30);
 export default function CreateInvoice() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const form = useForm({
     resolver: zodResolver(insertInvoiceSchema),
@@ -48,6 +49,8 @@ export default function CreateInvoice() {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate the invoices query to refresh the dashboard
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices/1"] });
       toast({
         title: "Invoice created",
         description: "Your invoice has been generated successfully.",
