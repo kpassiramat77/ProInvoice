@@ -47,7 +47,7 @@ export default function CreateInvoice() {
       dueDate: defaultDueDate.toISOString().split('T')[0],
       userId: 1,
       template: "modern",
-      taxRate: 0, // Added default tax rate
+      taxRate: 0,
       lineItems: [
         {
           description: "",
@@ -65,7 +65,7 @@ export default function CreateInvoice() {
   });
 
   const watchLineItems = form.watch("lineItems");
-  const taxRate = form.watch("taxRate"); // Watch tax rate
+  const taxRate = form.watch("taxRate");
   const totalAmount = watchLineItems.reduce((sum, item) => sum + (item.amount || 0), 0);
 
 
@@ -140,100 +140,6 @@ export default function CreateInvoice() {
                     )}
                   />
 
-                  {/* Tax Rate Field */}
-                  <FormField
-                    control={form.control}
-                    name="taxRate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2 text-gray-700">
-                          <Percent className="h-4 w-4 text-primary" />
-                          Tax Rate (%)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            max="100"
-                            className="bg-white hover:border-primary/50 transition-colors"
-                            {...field}
-                            onChange={(e) => {
-                              // Convert percentage to decimal (e.g., 10% -> 0.1)
-                              const value = Number(e.target.value) / 100;
-                              field.onChange(value);
-                            }}
-                            value={Number(field.value * 100)} // Convert decimal to percentage for display
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="clientName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-gray-700">
-                            <UserPlus className="h-4 w-4 text-primary" />
-                            Client Name
-                          </FormLabel>
-                          <FormControl>
-                            <Input {...field} className="bg-white hover:border-primary/50 transition-colors" placeholder="Enter client name" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="clientEmail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-gray-700">
-                            <Mail className="h-4 w-4 text-primary" />
-                            Client Email
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="email"
-                              {...field}
-                              className="bg-white hover:border-primary/50 transition-colors"
-                              placeholder="Enter client email"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="dueDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2 text-gray-700">
-                          <Calendar className="h-4 w-4 text-primary" />
-                          Due Date
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="date"
-                            className="bg-white hover:border-primary/50 transition-colors"
-                            {...field}
-                            min={new Date().toISOString().split('T')[0]}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -255,6 +161,39 @@ export default function CreateInvoice() {
                         <Plus className="h-4 w-4 mr-2" />
                         Add Item
                       </Button>
+                    </div>
+
+                    {/* Tax Rate Field */}
+                    <div className="p-4 bg-gray-50 rounded-lg relative hover:bg-gray-100/80 transition-colors">
+                      <FormField
+                        control={form.control}
+                        name="taxRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2 text-gray-700">
+                              <Percent className="h-4 w-4 text-primary" />
+                              Tax Rate (%)
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="100"
+                                className="bg-white hover:border-primary/50 transition-colors"
+                                {...field}
+                                onChange={(e) => {
+                                  // Convert percentage to decimal (e.g., 10% -> 0.1)
+                                  const value = Number(e.target.value) / 100;
+                                  field.onChange(value);
+                                }}
+                                value={Number(field.value * 100)} // Convert decimal to percentage for display
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
 
                     {fields.map((field, index) => (

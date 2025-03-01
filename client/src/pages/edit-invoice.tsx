@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { templates } from "@/lib/invoice-templates";
-import { FileText, Plus, Trash2 } from "lucide-react";
+import { FileText, Plus, Trash2, Percent } from "lucide-react";
 
 export default function EditInvoice({ params }: { params: { id: string } }) {
   const [, setLocation] = useLocation();
@@ -195,34 +195,6 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
                     )}
                   />
 
-                  {/* Tax Rate Field */}
-                  <FormField
-                    control={form.control}
-                    name="taxRate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tax Rate (%)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            max="100"
-                            className="bg-white"
-                            {...field}
-                            onChange={(e) => {
-                              // Convert percentage to decimal
-                              const value = Number(e.target.value) / 100;
-                              field.onChange(value);
-                            }}
-                            value={Number(field.value * 100)} // Convert decimal to percentage for display
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                   {/* Line Items */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -241,6 +213,39 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
                         <Plus className="h-4 w-4 mr-2" />
                         Add Item
                       </Button>
+                    </div>
+
+                    {/* Tax Rate Field */}
+                    <div className="p-4 bg-gray-50 rounded-lg relative">
+                      <FormField
+                        control={form.control}
+                        name="taxRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2 text-gray-700">
+                              <Percent className="h-4 w-4 text-primary" />
+                              Tax Rate (%)
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="100"
+                                className="bg-white hover:border-primary/50 transition-colors"
+                                {...field}
+                                onChange={(e) => {
+                                  // Convert percentage to decimal
+                                  const value = Number(e.target.value) / 100;
+                                  field.onChange(value);
+                                }}
+                                value={Number(field.value * 100)} // Convert decimal to percentage for display
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
 
                     {fields.map((field, index) => (
