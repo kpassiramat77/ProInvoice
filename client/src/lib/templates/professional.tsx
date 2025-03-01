@@ -2,134 +2,128 @@ import { type ReactNode } from "react";
 import { type Invoice } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, Mail } from "lucide-react";
-import { type InvoiceTemplateProps } from "./modern";
+import { type BusinessSettings } from "../invoice-templates";
+import { Phone, Mail, MapPin } from "lucide-react";
 
 function useBusinessInfo() {
   const { data: settings } = useQuery<BusinessSettings>({
-    queryKey: ["/api/business-settings/1"], // Mock user ID = 1
+    queryKey: ["/api/business-settings/1"],
   });
   return settings;
 }
 
-interface BusinessSettings {
-  businessName: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  phone?: string;
-  email?: string;
-  logo?: string;
-}
-
-export function ProfessionalTemplate({ invoice, className }: InvoiceTemplateProps) {
+export function ProfessionalTemplate({ invoice, className }: { invoice: Invoice & { lineItems: Array<{ description: string; quantity: number; unitPrice: number; amount: number }> }, className?: string }) {
   const businessInfo = useBusinessInfo();
-  const totalAmount = invoice.lineItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  const totalAmount = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
 
   return (
-    <div className={cn("bg-[#f8fafc] p-10", className)}>
-      {/* Header with dark blue band */}
-      <div className="bg-blue-900 text-white p-8 rounded-t-xl">
-        <div className="flex justify-between items-start">
+    <div className={cn("max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg border border-gray-300", className)}>
+      {/* Header Section */}
+      <div className="flex justify-between items-center pb-6 border-b border-gray-300">
+        <div className="flex items-center gap-4">
+          {businessInfo?.logo && (
+            <img src={businessInfo.logo} alt="Logo" className="w-16 h-16 object-contain" />
+          )}
           <div>
-            {businessInfo?.logo && (
-              <img 
-                src={businessInfo.logo} 
-                alt="Business logo" 
-                className="h-20 w-auto mb-4 object-contain bg-white p-2 rounded"
-              />
-            )}
-            <h1 className="text-4xl font-serif">INVOICE</h1>
-            <p className="text-blue-200 mt-2">#{invoice.invoiceNumber}</p>
+            <h1 className="text-2xl font-bold text-blue-600">{businessInfo?.businessName || "Business Name"}</h1>
+            <p className="text-gray-500 text-sm">Professional Invoice Solutions</p>
           </div>
-          <div className="text-right">
-            <div className="bg-blue-800 rounded p-4">
-              <p className="text-blue-200 text-sm">Due Date</p>
-              <p className="text-xl">{new Date(invoice.dueDate).toLocaleDateString()}</p>
-            </div>
-          </div>
+        </div>
+        <div className="text-right">
+          <h2 className="text-3xl font-bold text-blue-600">INVOICE</h2>
+          <p className="text-gray-600 text-sm">#{invoice.invoiceNumber}</p>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="bg-white p-8 rounded-b-xl shadow-lg">
-        {/* Addresses */}
-        <div className="grid grid-cols-2 gap-12 mb-10">
-          <div>
-            <h2 className="text-xl font-serif text-blue-900 mb-4">From</h2>
-            {businessInfo ? (
-              <div className="space-y-2">
-                <p className="text-xl font-medium">{businessInfo.businessName}</p>
-                <p className="text-gray-600">{businessInfo.address}</p>
-                <p className="text-gray-600">
-                  {businessInfo.city}, {businessInfo.state} {businessInfo.zipCode}
-                </p>
-                {businessInfo.phone && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Building2 className="h-4 w-4" />
-                    <p>{businessInfo.phone}</p>
-                  </div>
-                )}
-                {businessInfo.email && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Mail className="h-4 w-4" />
-                    <p>{businessInfo.email}</p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p className="text-gray-500 italic">No business information set</p>
-            )}
-          </div>
-          <div>
-            <h2 className="text-xl font-serif text-blue-900 mb-4">Bill To</h2>
-            <p className="text-xl">{invoice.clientName}</p>
-          </div>
+      {/* Invoice Info */}
+      <div className="mt-6 flex justify-between text-sm text-gray-700">
+        <div>
+          <p className="font-bold">Invoice to:</p>
+          <p className="text-lg font-semibold">{invoice.clientName}</p>
+          {invoice.clientEmail && <p>{invoice.clientEmail}</p>}
         </div>
+        <div className="text-right">
+          <p className="font-bold">Invoice no: {invoice.invoiceNumber}</p>
+          <p>Due Date: {new Date(invoice.dueDate).toLocaleDateString()}</p>
+        </div>
+      </div>
 
-        {/* Line Items */}
-        <div className="mb-10">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-blue-50">
-                <th className="py-4 px-6 text-left text-blue-900 font-serif">Description</th>
-                <th className="py-4 px-6 text-right text-blue-900 font-serif">Quantity</th>
-                <th className="py-4 px-6 text-right text-blue-900 font-serif">Rate</th>
-                <th className="py-4 px-6 text-right text-blue-900 font-serif">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-blue-100">
-              {invoice.lineItems.map((item, index) => (
-                <tr key={index}>
-                  <td className="py-4 px-6">{item.description}</td>
-                  <td className="py-4 px-6 text-right">{item.quantity}</td>
-                  <td className="py-4 px-6 text-right">${Number(item.unitPrice).toFixed(2)}</td>
-                  <td className="py-4 px-6 text-right">${Number(item.amount).toFixed(2)}</td>
+      {/* Items Table */}
+      <div className="mt-6">
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr className="bg-blue-600 text-white">
+              <th className="border p-2">NO</th>
+              <th className="border p-2 text-left">DESCRIPTION</th>
+              <th className="border p-2">QTY</th>
+              <th className="border p-2">PRICE</th>
+              <th className="border p-2">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoice.lineItems.length > 0 ? (
+              invoice.lineItems.map((item, index) => (
+                <tr key={index} className={index % 2 === 0 ? "bg-gray-100" : ""}>
+                  <td className="border p-2">{index + 1}</td>
+                  <td className="border p-2 text-left">{item.description}</td>
+                  <td className="border p-2">{item.quantity}</td>
+                  <td className="border p-2">${Number(item.unitPrice).toFixed(2)}</td>
+                  <td className="border p-2">${Number(item.amount).toFixed(2)}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className="border p-2 text-center text-gray-500">No items available</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-        {/* Footer */}
-        <div className="flex justify-between items-start pt-6 border-t-2 border-blue-900">
-          <div>
-            <p className="text-sm text-gray-600">
-              Payment is due within 30 days
-            </p>
-            <p className="text-sm text-gray-600 mt-1">
-              Thank you for your business
-            </p>
-          </div>
-          <div className="bg-blue-50 p-6 rounded">
-            <p className="text-sm text-blue-900 mb-1">Total Due</p>
-            <p className="text-4xl font-bold text-blue-900">
-              ${totalAmount.toFixed(2)}
-            </p>
-          </div>
+      {/* Payment Info */}
+      <div className="mt-6 flex justify-between text-sm text-gray-700 border-t pt-4">
+        <div>
+          <p className="font-bold">STATUS :</p>
+          <p className="capitalize">{invoice.status}</p>
+        </div>
+        <div className="text-right">
+          <p className="font-bold">GRAND TOTAL :</p>
+          <p className="text-xl font-bold text-blue-600">${totalAmount.toFixed(2)}</p>
         </div>
       </div>
+
+      {/* Footer */}
+      <div className="mt-6 text-gray-700 text-sm border-t pt-4">
+        <p className="font-bold">Thank you for your business!</p>
+        {invoice.description && (
+          <div className="mt-2">
+            <p className="font-bold">Notes :</p>
+            <p>{invoice.description}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Contact Info */}
+      {businessInfo && (
+        <div className="mt-6 flex justify-around text-gray-700 text-sm border-t pt-4">
+          {businessInfo.phone && (
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4" /> {businessInfo.phone}
+            </div>
+          )}
+          {businessInfo.email && (
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4" /> {businessInfo.email}
+            </div>
+          )}
+          {businessInfo.address && (
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" /> 
+              {`${businessInfo.address}, ${businessInfo.city}, ${businessInfo.state} ${businessInfo.zipCode}`}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
