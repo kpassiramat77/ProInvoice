@@ -16,6 +16,19 @@ import {
   Download,
   Brain,
 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts';
 import type { Invoice, Expense } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -31,7 +44,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Tooltip,
+  Tooltip as TooltipComponent,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -73,6 +86,10 @@ function LoadingSkeleton() {
     </div>
   );
 }
+
+// Add color constants for charts
+const COLORS = ['#10B981', '#F59E0B', '#EF4444']; // green, yellow, red for paid, pending, overdue
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
@@ -209,6 +226,50 @@ export default function Dashboard() {
     return () => clearTimeout(timer);
   }, [watchDescription]);
 
+  // Prepare data for charts
+  const revenueData = React.useMemo(() => {
+    if (!invoices) return [];
+
+    const monthlyData = new Array(6).fill(0).map((_, index) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - (5 - index));
+      return {
+        month: MONTHS[date.getMonth()],
+        revenue: 0,
+      };
+    });
+
+    invoices.forEach(invoice => {
+      const date = new Date(invoice.createdAt);
+      const monthIndex = monthlyData.findIndex(data => data.month === MONTHS[date.getMonth()]);
+      if (monthIndex !== -1) {
+        const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
+        monthlyData[monthIndex].revenue += invoiceTotal;
+      }
+    });
+
+    return monthlyData;
+  }, [invoices]);
+
+  const statusData = React.useMemo(() => {
+    if (!invoices) return [];
+
+    const counts = {
+      paid: 0,
+      pending: 0,
+      overdue: 0,
+    };
+
+    invoices.forEach(invoice => {
+      counts[invoice.status as keyof typeof counts]++;
+    });
+
+    return Object.entries(counts).map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+    }));
+  }, [invoices]);
+
   return (
     <div className="container mx-auto py-8 px-6">
       {/* Header with Quick Actions */}
@@ -216,7 +277,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
           <div className="flex gap-3">
-            <Tooltip>
+            <TooltipComponent>
               <TooltipTrigger asChild>
                 <Button variant="outline" size="sm" className="border-gray-200 hover:border-gray-300">
                   <Filter className="h-4 w-4 mr-2" />
@@ -226,9 +287,9 @@ export default function Dashboard() {
               <TooltipContent>
                 <p>Filter your transactions</p>
               </TooltipContent>
-            </Tooltip>
+            </TooltipComponent>
 
-            <Tooltip>
+            <TooltipComponent>
               <TooltipTrigger asChild>
                 <Button variant="outline" size="sm" className="border-gray-200 hover:border-gray-300">
                   <Download className="h-4 w-4 mr-2" />
@@ -238,9 +299,9 @@ export default function Dashboard() {
               <TooltipContent>
                 <p>Export your data</p>
               </TooltipContent>
-            </Tooltip>
+            </TooltipComponent>
 
-            <Tooltip>
+            <TooltipComponent>
               <TooltipTrigger asChild>
                 <Link href="/create-invoice">
                   <Button>
@@ -252,7 +313,7 @@ export default function Dashboard() {
               <TooltipContent>
                 <p>Create a new invoice</p>
               </TooltipContent>
-            </Tooltip>
+            </TooltipComponent>
           </div>
         </div>
       </div>
@@ -301,6 +362,61 @@ export default function Dashboard() {
               ${profit.toFixed(2)}
             </div>
             <p className="text-xs text-gray-600 mt-1 tracking-tight">Current balance</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Add Charts Section */}
+      <div className="grid lg:grid-cols-2 gap-8 mb-10">
+        <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">Revenue Trends</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value) => [`$${value}`, 'Revenue']}
+                    contentStyle={{ backgroundColor: 'white', border: '1px solid #e5e7eb' }}
+                  />
+                  <Bar dataKey="revenue" fill="hsl(220 47% 28%)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">Invoice Status Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
