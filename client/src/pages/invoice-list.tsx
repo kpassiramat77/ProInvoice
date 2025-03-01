@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Plus, Pencil, Trash2, Filter, X, Mail } from "lucide-react";
+import { FileText, Plus, Pencil, Trash2, Filter, X, Mail, Clock, Check, AlertTriangle } from "lucide-react";
 import type { Invoice } from "@shared/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -164,9 +164,14 @@ export default function InvoiceList() {
   return (
     <div className="container mx-auto py-8 px-6">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">All Invoices</h1>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <FileText className="h-6 w-6 text-primary" />
+          </div>
+          <h1 className="text-3xl font-bold">All Invoices</h1>
+        </div>
         <Link href="/create-invoice">
-          <Button>
+          <Button className="bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90">
             <Plus className="h-4 w-4 mr-2" />
             New Invoice
           </Button>
@@ -269,17 +274,27 @@ export default function InvoiceList() {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="font-medium text-gray-900">{invoice.clientName}</p>
-                    <p className="text-sm text-gray-500 mb-2">
+                    <p className="text-sm text-gray-500 mb-2 flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
                       #{invoice.invoiceNumber}
                     </p>
                     {invoice.clientEmail && (
-                      <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
+                      <p className="text-sm text-gray-500 mb-2 flex items-center gap-2">
                         <Mail className="h-4 w-4" />
                         {invoice.clientEmail}
                       </p>
                     )}
                     <div className="flex items-center gap-2">
-                      <InvoiceStatusBadge status={invoice.status} />
+                      <span className={`status-label inline-flex items-center ${
+                        invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {invoice.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                        {invoice.status === 'paid' && <Check className="h-3 w-3 mr-1" />}
+                        {invoice.status === 'overdue' && <AlertTriangle className="h-3 w-3 mr-1" />}
+                        {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                      </span>
                       <Select
                         value={invoice.status}
                         onValueChange={(value) => updateStatusMutation.mutate({ id: invoice.id, status: value })}
@@ -356,6 +371,7 @@ export default function InvoiceList() {
 
         {filteredInvoices?.length === 0 && (
           <div className="text-center py-12">
+            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No invoices found</p>
             <Link href="/create-invoice">
               <Button className="mt-4">

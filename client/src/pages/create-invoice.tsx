@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { templates } from "@/lib/invoice-templates";
-import { FileText, Plus, Trash2, Mail } from "lucide-react";
+import { FileText, Plus, Trash2, Mail, UserPlus, Calendar, Receipt, Palette } from "lucide-react";
 
 const defaultDueDate = new Date();
 defaultDueDate.setDate(defaultDueDate.getDate() + 30);
@@ -40,12 +40,12 @@ export default function CreateInvoice() {
     resolver: zodResolver(insertInvoiceSchema),
     defaultValues: {
       clientName: "",
-      clientEmail: "", // Add client email field
+      clientEmail: "", 
       invoiceNumber: `INV-${Date.now()}`,
       description: "",
       status: "pending",
       dueDate: defaultDueDate.toISOString().split('T')[0],
-      userId: 1, // Mock user ID
+      userId: 1, 
       template: "modern",
       lineItems: [
         {
@@ -108,16 +108,16 @@ export default function CreateInvoice() {
           <div className="lg:order-1 order-2">
             <Card className="p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
-                  className="space-y-6"
-                >
+                <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
                   <FormField
                     control={form.control}
                     name="template"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Template Style</FormLabel>
+                        <FormLabel className="flex items-center gap-2">
+                          <Palette className="h-4 w-4 text-gray-500" />
+                          Template Style
+                        </FormLabel>
                         <Select value={field.value} onValueChange={field.onChange}>
                           <FormControl>
                             <SelectTrigger className="bg-white">
@@ -137,13 +137,16 @@ export default function CreateInvoice() {
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Added div for grid layout */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="clientName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Client Name</FormLabel>
+                          <FormLabel className="flex items-center gap-2">
+                            <UserPlus className="h-4 w-4 text-gray-500" />
+                            Client Name
+                          </FormLabel>
                           <FormControl>
                             <Input {...field} className="bg-white" placeholder="Enter client name" />
                           </FormControl>
@@ -157,7 +160,10 @@ export default function CreateInvoice() {
                       name="clientEmail"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Client Email</FormLabel>
+                          <FormLabel className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-gray-500" />
+                            Client Email
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="email"
@@ -172,13 +178,15 @@ export default function CreateInvoice() {
                     />
                   </div>
 
-
                   <FormField
                     control={form.control}
                     name="dueDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Due Date</FormLabel>
+                        <FormLabel className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-gray-500" />
+                          Due Date
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="date"
@@ -194,7 +202,10 @@ export default function CreateInvoice() {
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Line Items</h3>
+                      <div className="flex items-center gap-2">
+                        <Receipt className="h-4 w-4 text-gray-500" />
+                        <h3 className="text-lg font-semibold">Line Items</h3>
+                      </div>
                       <Button
                         type="button"
                         variant="outline"
@@ -334,7 +345,10 @@ export default function CreateInvoice() {
 
           <div className="lg:order-2 order-1 lg:sticky lg:top-24 lg:self-start">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Preview</h2>
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-gray-500" />
+                <h2 className="text-xl font-semibold">Preview</h2>
+              </div>
             </div>
             <div className="overflow-hidden rounded-xl shadow-2xl">
               <InvoicePreview
