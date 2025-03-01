@@ -16,26 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Brain } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-const EXPENSE_CATEGORIES = [
-  "Office Supplies",
-  "Travel",
-  "Software",
-  "Hardware",
-  "Marketing",
-  "Professional Services",
-  "Utilities",
-  "Other",
-] as const;
 
 export function ExpenseForm() {
   const { toast } = useToast();
@@ -95,7 +77,7 @@ export function ExpenseForm() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/expenses/1"] });
       toast({
-        title: "Expense added",
+        title: "Success",
         description: "Your expense has been recorded successfully.",
       });
       form.reset();
@@ -199,33 +181,7 @@ export function ExpenseForm() {
               </p>
             </div>
           )}
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {EXPENSE_CATEGORIES.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/*Removed Select component and related code here */}
         </div>
 
         <Button
