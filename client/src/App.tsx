@@ -8,6 +8,8 @@ import CreateInvoice from "@/pages/create-invoice";
 import EditInvoice from "@/pages/edit-invoice";
 import BusinessSettings from "@/pages/business-settings";
 import NotFound from "@/pages/not-found";
+import InvoiceList from "@/pages/invoice-list";
+import ExpenseList from "@/pages/expense-list";
 import { Building2, FileText, PlusCircle, Menu } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
@@ -46,6 +48,14 @@ function NavigationLinks({ onClick }: { onClick?: () => void }) {
       <NavLink href="/dashboard" onClick={onClick}>
         <FileText className="h-4 w-4" />
         Dashboard
+      </NavLink>
+      <NavLink href="/invoices" onClick={onClick}>
+        <FileText className="h-4 w-4" />
+        Invoices
+      </NavLink>
+      <NavLink href="/expenses" onClick={onClick}>
+        <FileText className="h-4 w-4" />
+        Expenses
       </NavLink>
       <NavLink href="/create-invoice" onClick={onClick}>
         <PlusCircle className="h-4 w-4" />
@@ -115,6 +125,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/invoices" component={InvoiceList} />
+      <Route path="/expenses" component={ExpenseList} />
       <Route path="/create-invoice" component={CreateInvoice} />
       <Route path="/edit-invoice/:id" component={EditInvoice} />
       <Route path="/business-settings" component={BusinessSettings} />
