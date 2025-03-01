@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
-import { Plus, Pencil, Trash2, Filter, X, Tag, Calendar, DollarSign, Search, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, Filter, X, Tag, Calendar, DollarSign, Search, FileText, Building2, ShoppingBag, Briefcase, Wifi, Wrench, CreditCard, Coffee, Car, TrendingUp } from "lucide-react";
 import type { Expense } from "@shared/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -28,8 +28,24 @@ const EXPENSE_CATEGORIES = [
   "Marketing",
   "Professional Services",
   "Utilities",
+  "Food & Drinks",
+  "Transportation",
   "Other",
 ] as const;
+
+// Updated category icons mapping with Wrench instead of Tool
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  "Office Supplies": <ShoppingBag className="h-4 w-4" />,
+  "Travel": <Car className="h-4 w-4" />,
+  "Software": <Wrench className="h-4 w-4" />,
+  "Hardware": <Wrench className="h-4 w-4" />,
+  "Marketing": <Briefcase className="h-4 w-4" />,
+  "Professional Services": <Building2 className="h-4 w-4" />,
+  "Utilities": <Wifi className="h-4 w-4" />,
+  "Food & Drinks": <Coffee className="h-4 w-4" />,
+  "Transportation": <Car className="h-4 w-4" />,
+  "Other": <CreditCard className="h-4 w-4" />,
+};
 
 export default function ExpenseList() {
   const [, setLocation] = useLocation();
@@ -93,6 +109,12 @@ export default function ExpenseList() {
     return true;
   });
 
+  // Calculate summary statistics
+  const totalExpenses = filteredExpenses?.reduce((sum, exp) => sum + Number(exp.amount), 0) || 0;
+  const averageExpense = filteredExpenses?.length 
+    ? totalExpenses / filteredExpenses.length 
+    : 0;
+
   const resetFilters = () => {
     setFilters({
       category: "All",
@@ -121,6 +143,57 @@ export default function ExpenseList() {
           </div>
           <h1 className="text-3xl font-bold">All Expenses</h1>
         </div>
+      </div>
+
+      {/* Summary Statistics */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <Card className="bg-white shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-gray-600">Total Expenses</h3>
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <DollarSign className="h-4 w-4 text-primary" />
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-gray-900">${totalExpenses.toFixed(2)}</p>
+            <p className="text-sm text-gray-500 mt-1">{filteredExpenses?.length || 0} expenses</p>
+          </div>
+        </Card>
+
+        <Card className="bg-white shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-gray-600">Average Expense</h3>
+              <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 text-emerald-600" />
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-gray-900">${averageExpense.toFixed(2)}</p>
+            <p className="text-sm text-gray-500 mt-1">per transaction</p>
+          </div>
+        </Card>
+
+        <Card className="bg-white shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-gray-600">Most Common Category</h3>
+              <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
+                <Tag className="h-4 w-4 text-blue-600" />
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-gray-900">
+              {filteredExpenses?.length ? 
+                Object.entries(
+                  filteredExpenses.reduce((acc, exp) => ({
+                    ...acc,
+                    [exp.category]: (acc[exp.category] || 0) + 1
+                  }), {} as Record<string, number>)
+                ).sort((a, b) => b[1] - a[1])[0][0]
+                : "N/A"}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">most frequent</p>
+          </div>
+        </Card>
       </div>
 
       {/* Filters */}
@@ -158,7 +231,10 @@ export default function ExpenseList() {
                 <SelectContent>
                   {EXPENSE_CATEGORIES.map((category) => (
                     <SelectItem key={category} value={category}>
-                      {category}
+                      <div className="flex items-center gap-2">
+                        {CATEGORY_ICONS[category] || <CreditCard className="h-4 w-4" />}
+                        {category}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -240,14 +316,17 @@ export default function ExpenseList() {
         </div>
       </Card>
 
-      <div className="space-y-4">
+      <div className="grid md:grid-cols-2 gap-4">
         {filteredExpenses?.map((expense) => (
           <Card key={expense.id} className="p-5 bg-white shadow-sm hover:shadow-md transition-all duration-200">
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-medium text-gray-900">{expense.description}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">{expense.category}</Badge>
+                  <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-1">
+                    {CATEGORY_ICONS[expense.category] || <CreditCard className="h-3 w-3" />}
+                    {expense.category}
+                  </Badge>
                   {expense.subCategory && (
                     <>
                       <span className="text-xs text-gray-400">→</span>
@@ -315,7 +394,7 @@ export default function ExpenseList() {
         ))}
 
         {filteredExpenses?.length === 0 && (
-          <div className="text-center py-12">
+          <div className="text-center py-12 col-span-2">
             <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No expenses found</p>
             <Button
