@@ -7,11 +7,25 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { ArrowLeft, Calendar, Tag, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 import React from "react";
+
+const EXPENSE_CATEGORIES = [
+  "Office Supplies",
+  "Travel",
+  "Software",
+  "Hardware",
+  "Marketing",
+  "Professional Services",
+  "Utilities",
+  "Food & Drinks",
+  "Transportation",
+  "Other",
+] as const;
 
 export default function EditExpense({ params }: { params: { id: string } }) {
   const [, setLocation] = useLocation();
@@ -133,6 +147,10 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                       type="number"
                       step="0.01"
                       {...field}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value ? Number(value) : "");
+                      }}
                       className="bg-white"
                     />
                   </FormControl>
@@ -150,9 +168,23 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                     <Tag className="h-4 w-4 text-primary" />
                     Category
                   </FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter category" className="bg-white" />
-                  </FormControl>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {EXPENSE_CATEGORIES.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
