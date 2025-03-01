@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ArrowLeft, Calendar, Tag, DollarSign, Brain } from "lucide-react";
+import { ArrowLeft, Calendar, Tag, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function EditExpense({ params }: { params: { id: string } }) {
@@ -17,7 +17,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: expense, isLoading } = useQuery<Expense>({
+  const { data: expense, isLoading: isLoadingExpense } = useQuery<Expense>({
     queryKey: [`/api/expenses/${params.id}`],
   });
 
@@ -30,12 +30,15 @@ export default function EditExpense({ params }: { params: { id: string } }) {
       date: new Date().toISOString().split('T')[0],
       userId: 1,
     },
-    values: expense,
+    values: expense, // This will update form values when expense data is fetched
   });
 
-  const mutation = useMutation({
+  const updateMutation = useMutation({
     mutationFn: async (data: Expense) => {
       const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, data);
+      if (!response.ok) {
+        throw new Error("Failed to update expense");
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -55,7 +58,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     },
   });
 
-  if (isLoading) {
+  if (isLoadingExpense) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -65,21 +68,19 @@ export default function EditExpense({ params }: { params: { id: string } }) {
 
   return (
     <div className="container mx-auto py-8 px-6">
-      <div className="mb-8">
-        <Button
-          variant="ghost"
-          onClick={() => setLocation("/expenses")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Expenses
-        </Button>
-        <h1 className="text-2xl font-bold">Edit Expense</h1>
-      </div>
+      <Button
+        variant="ghost"
+        onClick={() => setLocation("/expenses")}
+        className="mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Expenses
+      </Button>
 
       <Card className="max-w-2xl mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-6">Edit Expense</h1>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
+          <form onSubmit={form.handleSubmit((data) => updateMutation.mutate(data))} className="space-y-4">
             <FormField
               control={form.control}
               name="description"
@@ -111,7 +112,6 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                       type="number"
                       step="0.01"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.value)}
                       className="bg-white"
                     />
                   </FormControl>
@@ -147,7 +147,11 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                     Date
                   </FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} className="bg-white" />
+                    <Input
+                      type="date"
+                      {...field}
+                      className="bg-white"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -158,12 +162,11 @@ export default function EditExpense({ params }: { params: { id: string } }) {
               type="submit"
               className={cn(
                 "w-full bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90",
-                mutation.isPending && "opacity-50 cursor-not-allowed"
+                updateMutation.isPending && "opacity-50 cursor-not-allowed"
               )}
-              disabled={mutation.isPending}
+              disabled={updateMutation.isPending}
             >
-              <Brain className="h-4 w-4 mr-2" />
-              {mutation.isPending ? "Updating..." : "Update Expense"}
+              {updateMutation.isPending ? "Updating..." : "Update Expense"}
             </Button>
           </form>
         </Form>
