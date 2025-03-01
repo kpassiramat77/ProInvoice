@@ -18,6 +18,7 @@ export const invoices = pgTable("invoices", {
   dueDate: timestamp("due_date").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   template: text("template").notNull().default("modern"),
+  taxRate: decimal("tax_rate").notNull().default("0.1"), // Adding tax rate field
 });
 
 export const lineItems = pgTable("line_items", {
@@ -55,7 +56,6 @@ export const businessSettings = pgTable("business_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Line item schema
 export const insertLineItemSchema = createInsertSchema(lineItems)
   .omit({
     id: true,
@@ -67,7 +67,6 @@ export const insertLineItemSchema = createInsertSchema(lineItems)
     amount: z.number().positive("Amount must be greater than 0"),
   });
 
-// Invoice schema with line items
 export const insertInvoiceSchema = createInsertSchema(invoices)
   .omit({
     id: true,
@@ -77,6 +76,7 @@ export const insertInvoiceSchema = createInsertSchema(invoices)
     lineItems: z.array(insertLineItemSchema),
     dueDate: z.string().transform((date) => new Date(date)),
     template: z.enum(["modern", "professional", "creative"]).default("modern"),
+    taxRate: z.number().min(0).max(1).default(0.1), // Adding tax rate validation
   });
 
 export const insertExpenseSchema = createInsertSchema(expenses)
