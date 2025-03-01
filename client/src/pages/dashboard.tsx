@@ -328,7 +328,6 @@ export default function Dashboard() {
           <Card className="bg-white shadow-sm">
             <div className="p-5">
               <ExpenseForm />
-
               {loadingExpenses ? (
                 <LoadingSkeleton />
               ) : expenses?.length === 0 ? (
