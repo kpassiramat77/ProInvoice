@@ -126,15 +126,15 @@ export default function Dashboard() {
   const profit = totalInvoices - totalExpenses;
 
   return (
-    <div className="container mx-auto py-6 px-4">
+    <div className="container mx-auto py-8 px-6">
       {/* Header with Quick Actions */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
+      <div className="mb-10">
+        <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-gray-200 hover:border-gray-300">
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
@@ -146,7 +146,7 @@ export default function Dashboard() {
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-gray-200 hover:border-gray-300">
                   <Download className="h-4 w-4 mr-2" />
                   Export
                 </Button>
@@ -174,9 +174,9 @@ export default function Dashboard() {
       </div>
 
       {/* Summary Cards with enhanced visuals */}
-      <div className="grid md:grid-cols-3 gap-4 mb-8">
-        <Card className="bg-white hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <div className="grid md:grid-cols-3 gap-6 mb-10">
+        <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
             <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
               <DollarSign className="h-4 w-4 text-blue-600" />
@@ -190,8 +190,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
             <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
               <TrendingUp className="h-4 w-4 text-red-600" />
@@ -205,8 +205,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
             <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
               <DollarSign className="h-4 w-4 text-emerald-600" />
@@ -225,9 +225,9 @@ export default function Dashboard() {
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Invoices Section */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-medium text-gray-900">Recent Invoices</h2>
-            <Button variant="ghost" size="sm" onClick={() => setLocation("/invoices")}>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/invoices")} className="text-gray-600 hover:text-gray-900">
               View all
             </Button>
           </div>
@@ -235,26 +235,24 @@ export default function Dashboard() {
           {loadingInvoices ? (
             <LoadingSkeleton />
           ) : invoices?.length === 0 ? (
-            <Card className="py-8">
-              <div className="text-center">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No invoices yet</h3>
-                <p className="text-sm text-gray-500 mb-4">Create your first invoice to get started</p>
-                <Link href="/create-invoice">
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Invoice
-                  </Button>
-                </Link>
-              </div>
+            <Card className="py-10 px-6 text-center">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No invoices yet</h3>
+              <p className="text-sm text-gray-500 mb-4">Create your first invoice to get started</p>
+              <Link href="/create-invoice">
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Invoice
+                </Button>
+              </Link>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {invoices?.map((invoice) => {
                 const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
                 return (
-                  <Card key={invoice.id} className="bg-white hover:shadow-md transition-shadow">
-                    <div className="p-4">
+                  <Card key={invoice.id} className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div className="p-5">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium text-gray-900">{invoice.clientName}</p>
@@ -270,17 +268,22 @@ export default function Dashboard() {
                           <p className="text-sm text-gray-500 mt-0.5">
                             Due: {new Date(invoice.dueDate).toLocaleDateString()}
                           </p>
-                          <div className="flex gap-2 mt-2">
+                          <div className="flex gap-2 mt-3">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => setLocation(`/edit-invoice/${invoice.id}`)}
+                              className="border-gray-200 hover:border-gray-300"
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="sm">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="border-gray-200 hover:border-gray-300"
+                                >
                                   <Trash2 className="h-4 w-4 text-red-500" />
                                 </Button>
                               </AlertDialogTrigger>
@@ -309,30 +312,27 @@ export default function Dashboard() {
                   </Card>
                 );
               })}
-              {invoices?.length === 0 && (
-                <p className="text-center text-gray-500 py-4">No invoices found</p>
-              )}
             </div>
           )}
         </div>
 
         {/* Expenses Section */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-medium text-gray-900">Expenses</h2>
-            <Button variant="ghost" size="sm" onClick={() => setLocation("/expenses")}>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/expenses")} className="text-gray-600 hover:text-gray-900">
               View all
             </Button>
           </div>
 
-          <Card className="bg-white">
-            <div className="p-4">
+          <Card className="bg-white shadow-sm">
+            <div className="p-5">
               <ExpenseForm />
 
               {loadingExpenses ? (
                 <LoadingSkeleton />
               ) : expenses?.length === 0 ? (
-                <div className="text-center py-6">
+                <div className="text-center py-8">
                   <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No expenses recorded</h3>
                   <p className="text-sm text-gray-500">
@@ -340,11 +340,11 @@ export default function Dashboard() {
                   </p>
                 </div>
               ) : (
-                <div className="mt-4 divide-y divide-gray-100">
+                <div className="mt-6 divide-y divide-gray-100">
                   {expenses?.map((expense) => (
                     <div
                       key={expense.id}
-                      className="py-2 first:pt-0 last:pb-0 hover:bg-gray-50 -mx-4 px-4 transition-colors"
+                      className="py-3 first:pt-0 last:pb-0 hover:bg-gray-50 -mx-5 px-5 transition-colors"
                     >
                       <div className="flex justify-between items-center">
                         <div className="min-w-0 flex-1">

@@ -140,183 +140,190 @@ export default function InvoiceList() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">All Invoices</h1>
-        <Link href="/create-invoice">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Invoice
-          </Button>
-        </Link>
-      </div>
-
-      {/* Filters */}
-      <Card className="mb-6">
-        <div className="p-4 space-y-4">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-sm font-medium flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              Filters
-            </h2>
-            <Button variant="ghost" size="sm" onClick={resetFilters}>
-              <X className="h-4 w-4 mr-2" />
-              Reset
+    <div className="container mx-auto py-8 px-6">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900">All Invoices</h1>
+          <Link href="/create-invoice">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              New Invoice
             </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Status</label>
-              <Select
-                value={filters.status}
-                onValueChange={(value) => setFilters({ ...filters, status: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {INVOICE_STATUSES.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Search by client</label>
-              <Input
-                placeholder="Search client name..."
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Amount range</label>
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.minAmount}
-                  onChange={(e) => setFilters({ ...filters, minAmount: e.target.value })}
-                />
-                <Input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.maxAmount}
-                  onChange={(e) => setFilters({ ...filters, maxAmount: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Start date</label>
-              <Input
-                type="date"
-                value={filters.startDate}
-                onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">End date</label>
-              <Input
-                type="date"
-                value={filters.endDate}
-                onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-              />
-            </div>
-          </div>
+          </Link>
         </div>
-      </Card>
 
-      <div className="space-y-4">
-        {filteredInvoices?.map((invoice) => {
-          const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
-          return (
-            <Card key={invoice.id} className="p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-medium text-gray-900">{invoice.clientName}</p>
-                  <p className="text-sm text-gray-500 mb-2">
-                    #{invoice.invoiceNumber}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <InvoiceStatusBadge status={invoice.status} />
-                    <Select
-                      value={invoice.status}
-                      onValueChange={(value) => updateStatusMutation.mutate({ id: invoice.id, status: value })}
-                    >
-                      <SelectTrigger className="h-7 w-32">
-                        <SelectValue placeholder="Update status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {INVOICE_STATUS_OPTIONS.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status.charAt(0).toUpperCase() + status.slice(1)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-semibold text-gray-900">${invoiceTotal.toFixed(2)}</p>
-                  <p className="text-sm text-gray-500">
-                    Due: {new Date(invoice.dueDate).toLocaleDateString()}
-                  </p>
-                  <div className="flex gap-2 mt-2">
-                    <Link href={`/edit-invoice/${invoice.id}`}>
-                      <Button variant="outline" size="sm">
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this invoice? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => deleteInvoiceMutation.mutate(invoice.id)}
-                            className="bg-red-500 hover:bg-red-600"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+        {/* Filters */}
+        <Card className="mb-8 shadow-sm">
+          <div className="p-5 space-y-5">
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-medium flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                Filters
+              </h2>
+              <Button variant="ghost" size="sm" onClick={resetFilters} className="text-gray-600 hover:text-gray-900">
+                <X className="h-4 w-4 mr-2" />
+                Reset
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="space-y-2.5">
+                <label className="text-sm font-medium text-gray-700">Status</label>
+                <Select
+                  value={filters.status}
+                  onValueChange={(value) => setFilters({ ...filters, status: value })}
+                >
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {INVOICE_STATUSES.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2.5">
+                <label className="text-sm font-medium text-gray-700">Search by client</label>
+                <Input
+                  placeholder="Search client name..."
+                  value={filters.search}
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-2.5">
+                <label className="text-sm font-medium text-gray-700">Amount range</label>
+                <div className="flex gap-3">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    value={filters.minAmount}
+                    onChange={(e) => setFilters({ ...filters, minAmount: e.target.value })}
+                    className="bg-white"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    value={filters.maxAmount}
+                    onChange={(e) => setFilters({ ...filters, maxAmount: e.target.value })}
+                    className="bg-white"
+                  />
                 </div>
               </div>
-            </Card>
-          );
-        })}
 
-        {filteredInvoices?.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No invoices found</p>
-            <Link href="/create-invoice">
-              <Button className="mt-4">
-                <Plus className="h-4 w-4 mr-2" />
-                Create your first invoice
-              </Button>
-            </Link>
+              <div className="space-y-2.5">
+                <label className="text-sm font-medium text-gray-700">Start date</label>
+                <Input
+                  type="date"
+                  value={filters.startDate}
+                  onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-2.5">
+                <label className="text-sm font-medium text-gray-700">End date</label>
+                <Input
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+                  className="bg-white"
+                />
+              </div>
+            </div>
           </div>
-        )}
+        </Card>
+
+        <div className="space-y-4">
+          {filteredInvoices?.map((invoice) => {
+            const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
+            return (
+              <Card key={invoice.id} className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="p-5">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-gray-900">{invoice.clientName}</p>
+                      <p className="text-sm text-gray-500 mb-2">
+                        #{invoice.invoiceNumber}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <InvoiceStatusBadge status={invoice.status} />
+                        <Select
+                          value={invoice.status}
+                          onValueChange={(value) => updateStatusMutation.mutate({ id: invoice.id, status: value })}
+                        >
+                          <SelectTrigger className="h-7 w-32 bg-white">
+                            <SelectValue placeholder="Update status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {INVOICE_STATUS_OPTIONS.map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-semibold text-gray-900">${invoiceTotal.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500">
+                        Due: {new Date(invoice.dueDate).toLocaleDateString()}
+                      </p>
+                      <div className="flex gap-2 mt-3">
+                        <Link href={`/edit-invoice/${invoice.id}`}>
+                          <Button variant="outline" size="sm" className="border-gray-200 hover:border-gray-300">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="border-gray-200 hover:border-gray-300">
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this invoice? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteInvoiceMutation.mutate(invoice.id)}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+
+          {filteredInvoices?.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No invoices found</p>
+              <Link href="/create-invoice">
+                <Button className="mt-4">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create your first invoice
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
   );
 }
