@@ -83,13 +83,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add AI categorization endpoint
+  app.post("/api/expenses/categorize", async (req, res) => {
+    try {
+      const { description } = req.body;
+      const category = await categorizeExpense(description);
+      res.json(category);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Update expense creation endpoint
   app.post("/api/expenses", async (req, res) => {
     try {
       const data = insertExpenseSchema.parse(req.body);
 
-      // Auto-categorize expense if category not provided
+      // If no category is provided, try to auto-categorize
       if (!data.category) {
-        data.category = await categorizeExpense(data.description);
+        const category = await categorizeExpense(data.description);
+        data.category = category.mainCategory;
+        data.subCategory = category.subCategory;
+        data.confidence = category.confidence;
+        data.categoryExplanation = category.explanation;
       }
 
       const expense = await storage.createExpense(data);

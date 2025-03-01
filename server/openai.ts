@@ -36,30 +36,68 @@ export async function generateInvoiceDescription(details: {
   }
 }
 
-export async function categorizeExpense(description: string): Promise<string> {
+export interface ExpenseCategory {
+  mainCategory: string;
+  subCategory: string;
+  confidence: number;
+  explanation: string;
+}
+
+export async function categorizeExpense(description: string): Promise<ExpenseCategory> {
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "Categorize the expense into one of these categories: 'Office Supplies', 'Travel', 'Software', 'Hardware', 'Marketing', 'Other'. Return only the category name.",
+          content: `Analyze the expense description and categorize it in detail. Consider the following main categories:
+            - Office Supplies (e.g., stationery, printer supplies)
+            - Travel (e.g., flights, hotels, meals)
+            - Software (e.g., subscriptions, licenses)
+            - Hardware (e.g., computers, phones)
+            - Marketing (e.g., advertising, events)
+            - Professional Services (e.g., consulting, legal)
+            - Utilities (e.g., internet, phone)
+            - Other
+
+            Provide:
+            1. The most appropriate main category
+            2. A specific sub-category
+            3. Confidence score (0-1)
+            4. Brief explanation of the categorization
+
+            Return the result as a JSON object with properties:
+            {
+              "mainCategory": string,
+              "subCategory": string,
+              "confidence": number,
+              "explanation": string
+            }`,
         },
         {
           role: "user",
           content: description,
         },
       ],
+      response_format: { type: "json_object" },
     });
 
-    const category = response.choices[0].message.content;
-    if (!category || !["Office Supplies", "Travel", "Software", "Hardware", "Marketing", "Other"].includes(category)) {
-      return "Other";
-    }
+    const result = JSON.parse(response.choices[0].message.content);
 
-    return category;
+    // Validate and normalize the response
+    return {
+      mainCategory: result.mainCategory || "Other",
+      subCategory: result.subCategory || "Miscellaneous",
+      confidence: Math.min(1, Math.max(0, result.confidence || 0)),
+      explanation: result.explanation || "No explanation provided",
+    };
   } catch (error) {
     console.error("OpenAI API error:", error);
-    return "Other";
+    return {
+      mainCategory: "Other",
+      subCategory: "Miscellaneous",
+      confidence: 0,
+      explanation: "Failed to categorize expense",
+    };
   }
 }

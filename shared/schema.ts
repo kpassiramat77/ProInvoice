@@ -35,6 +35,9 @@ export const expenses = pgTable("expenses", {
   description: text("description").notNull(),
   amount: decimal("amount").notNull(),
   category: text("category").notNull(),
+  subCategory: text("sub_category"),
+  confidence: decimal("confidence"),
+  categoryExplanation: text("category_explanation"),
   date: timestamp("date").notNull(),
 });
 
@@ -83,6 +86,9 @@ export const insertExpenseSchema = createInsertSchema(expenses)
   .extend({
     amount: z.number().positive("Amount must be greater than 0"),
     date: z.string().transform((date) => new Date(date)),
+    confidence: z.number().min(0).max(1).optional(),
+    subCategory: z.string().optional(),
+    categoryExplanation: z.string().optional(),
   });
 
 export const insertBusinessSettingsSchema = createInsertSchema(businessSettings)
