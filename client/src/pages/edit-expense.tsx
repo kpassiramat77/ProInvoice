@@ -33,56 +33,52 @@ export default function EditExpense({ params }: { params: { id: string } }) {
   const queryClient = useQueryClient();
 
   // Query for fetching expense data
-  const { data: expense, isLoading: isLoadingExpense } = useQuery<Expense>({
+  const { data: expense, isLoading } = useQuery({
     queryKey: ["/api/expenses", params.id],
     queryFn: async () => {
-      const response = await apiRequest("GET", `/api/expenses/${params.id}`);
-      if (!response.ok) throw new Error("Failed to fetch expense");
-      const data = await response.json();
-      return data;
+      try {
+        const response = await apiRequest("GET", `/api/expenses/${params.id}`);
+        if (!response.ok) throw new Error("Failed to fetch expense");
+        const data = await response.json();
+        return {
+          ...data,
+          amount: String(data.amount),
+          date: new Date(data.date).toISOString().split('T')[0],
+        };
+      } catch (error) {
+        console.error("Error fetching expense:", error);
+        throw new Error("Failed to fetch expense data");
+      }
     },
   });
 
   // Form setup
   const form = useForm<Expense>({
     resolver: zodResolver(insertExpenseSchema),
+    defaultValues: {
+      description: "",
+      amount: "",
+      category: "",
+      date: new Date().toISOString().split('T')[0],
+    },
   });
 
   // Update form when expense data is loaded
   React.useEffect(() => {
     if (expense) {
-      try {
-        const formattedExpense = {
-          ...expense,
-          amount: Number(expense.amount),
-          date: new Date(expense.date).toISOString().split('T')[0],
-        };
-
-        form.reset(formattedExpense);
-      } catch (error) {
-        console.error("Error setting form data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load expense data. Please try again.",
-          variant: "destructive",
-        });
-      }
+      form.reset(expense);
     }
-  }, [expense, form, toast]);
+  }, [expense, form]);
 
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async (data: Expense) => {
-      const formattedData = {
+      const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, {
         ...data,
         amount: String(data.amount),
         date: new Date(data.date).toISOString(),
-      };
-
-      const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, formattedData);
-      if (!response.ok) {
-        throw new Error("Failed to update expense");
-      }
+      });
+      if (!response.ok) throw new Error("Failed to update expense");
       return response.json();
     },
     onSuccess: () => {
@@ -102,7 +98,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     },
   });
 
-  if (isLoadingExpense) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -157,7 +153,6 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                       step="0.01"
                       {...field}
                       value={field.value || ""}
-                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : "")}
                       className="bg-white"
                     />
                   </FormControl>
