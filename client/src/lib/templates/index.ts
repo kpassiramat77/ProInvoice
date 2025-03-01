@@ -21,12 +21,7 @@ export const templates = {
     name: "Professional",
     component: ProfessionalTemplate,
     description: "Traditional business styling",
-  },
-  creative: {
-    name: "Creative",
-    component: CreativeTemplate,
-    description: "Artistic and modern elements",
-  },
+  }
 } as const;
 
 export type TemplateId = keyof typeof templates;
