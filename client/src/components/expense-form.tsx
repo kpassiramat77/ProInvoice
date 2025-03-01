@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PlusCircle, Brain } from "lucide-react";
+import { Brain } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const EXPENSE_CATEGORIES = [
@@ -70,8 +70,6 @@ export function ExpenseForm() {
       setAiSuggestion(data);
       form.setValue("category", data.mainCategory);
       form.setValue("subCategory", data.subCategory);
-      //form.setValue("confidence", data.confidence); //These lines are commented out because insertExpenseSchema likely doesn't have these fields.
-      //form.setValue("categoryExplanation", data.explanation);
     },
   });
 
@@ -185,7 +183,22 @@ export function ExpenseForm() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-sm font-medium mb-3">Category</p>
+          {aiSuggestion && (
+            <div className="bg-muted/50 rounded-lg p-3 mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
+                  {aiSuggestion.mainCategory}
+                </Badge>
+                <span className="text-sm text-muted-foreground">→</span>
+                <Badge variant="outline">{aiSuggestion.subCategory}</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {aiSuggestion.explanation} ({Math.round(aiSuggestion.confidence * 100)}% confidence)
+              </p>
+            </div>
+          )}
           <FormField
             control={form.control}
             name="category"
@@ -213,20 +226,6 @@ export function ExpenseForm() {
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="subCategory"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sub-category</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Optional sub-category" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         <Button
@@ -234,7 +233,7 @@ export function ExpenseForm() {
           className="w-full"
           disabled={mutation.isPending}
         >
-          <PlusCircle className="mr-2 h-4 w-4" />
+          <Brain className="mr-2 h-4 w-4" />
           {mutation.isPending ? "Adding..." : "Add Expense"}
         </Button>
       </form>

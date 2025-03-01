@@ -239,7 +239,13 @@ export default function Dashboard() {
                     <div>
                       <p className="font-medium">{expense.description}</p>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline">{expense.category}</Badge>
+                        <Badge>{expense.category}</Badge>
+                        {expense.subCategory && (
+                          <>
+                            <span className="text-sm text-muted-foreground">→</span>
+                            <Badge variant="outline">{expense.subCategory}</Badge>
+                          </>
+                        )}
                         <p className="text-sm text-gray-500">
                           {new Date(expense.date).toLocaleDateString()}
                         </p>
