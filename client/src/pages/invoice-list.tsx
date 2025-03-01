@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { FileText, Plus, Pencil, Trash2, Filter, X, Mail, Clock, Check, AlertTriangle } from "lucide-react";
+import { FileText, Plus, Pencil, Trash2, Filter, X, Mail, Clock, Check, AlertTriangle, Search, Calendar, DollarSign } from "lucide-react";
 import type { Invoice } from "@shared/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -21,20 +21,6 @@ import { useState } from "react";
 const INVOICE_STATUSES = ["all", "pending", "paid", "overdue"] as const;
 const INVOICE_STATUS_OPTIONS = ["pending", "paid", "overdue"] as const;
 
-function InvoiceStatusBadge({ status }: { status: string }) {
-  const variants: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-800",
-    paid: "bg-green-100 text-green-800",
-    overdue: "bg-red-100 text-red-800",
-  };
-
-  return (
-    <span className={`status-label ${variants[status] || "bg-gray-100 text-gray-800"}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
-}
-
 export default function InvoiceList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -48,7 +34,7 @@ export default function InvoiceList() {
   });
 
   const { data: invoices, isLoading } = useQuery<(Invoice & { lineItems: Array<{ amount: number }> })[]>({
-    queryKey: ["/api/invoices/1"], // Mock user ID = 1
+    queryKey: ["/api/invoices/1"],
   });
 
   const deleteInvoiceMutation = useMutation({
@@ -97,7 +83,6 @@ export default function InvoiceList() {
     },
   });
 
-  // Add email mutation
   const emailInvoiceMutation = useMutation({
     mutationFn: async ({ id, email }: { id: number; email: string }) => {
       const response = await apiRequest("POST", `/api/invoices/${id}/email`, { email });
@@ -118,16 +103,13 @@ export default function InvoiceList() {
     },
   });
 
-
   const filteredInvoices = invoices?.filter((invoice) => {
     const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
     const invoiceDate = new Date(invoice.dueDate);
     invoiceDate.setHours(0, 0, 0, 0);
 
     if (filters.status !== "all" && invoice.status !== filters.status) return false;
-
     if (filters.search && !invoice.clientName.toLowerCase().includes(filters.search.toLowerCase())) return false;
-
     if (filters.minAmount && invoiceTotal < Number(filters.minAmount)) return false;
     if (filters.maxAmount && invoiceTotal > Number(filters.maxAmount)) return false;
 
@@ -158,7 +140,11 @@ export default function InvoiceList() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
@@ -171,7 +157,7 @@ export default function InvoiceList() {
           <h1 className="text-3xl font-bold">All Invoices</h1>
         </div>
         <Link href="/create-invoice">
-          <Button className="bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90">
+          <Button className="bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90 transition-all duration-200">
             <Plus className="h-4 w-4 mr-2" />
             New Invoice
           </Button>
@@ -179,14 +165,19 @@ export default function InvoiceList() {
       </div>
 
       {/* Filters */}
-      <Card className="mb-8 shadow-sm">
+      <Card className="mb-8 shadow-sm hover:shadow-md transition-all duration-200">
         <div className="p-5 space-y-5">
           <div className="flex justify-between items-center">
             <h2 className="text-sm font-medium flex items-center gap-2">
-              <Filter className="h-4 w-4" />
+              <Filter className="h-4 w-4 text-primary" />
               Filters
             </h2>
-            <Button variant="ghost" size="sm" onClick={resetFilters} className="text-gray-600 hover:text-gray-900">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetFilters}
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
               <X className="h-4 w-4 mr-2" />
               Reset
             </Button>
@@ -194,12 +185,15 @@ export default function InvoiceList() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div className="space-y-2.5">
-              <label className="text-sm font-medium text-gray-700">Status</label>
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Filter className="h-4 w-4 text-primary" />
+                Status
+              </label>
               <Select
                 value={filters.status}
                 onValueChange={(value) => setFilters({ ...filters, status: value })}
               >
-                <SelectTrigger className="bg-white">
+                <SelectTrigger className="bg-white hover:border-primary/50 transition-colors">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -213,52 +207,64 @@ export default function InvoiceList() {
             </div>
 
             <div className="space-y-2.5">
-              <label className="text-sm font-medium text-gray-700">Search by client</label>
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Search className="h-4 w-4 text-primary" />
+                Search by client
+              </label>
               <Input
                 placeholder="Search client name..."
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="bg-white"
+                className="bg-white hover:border-primary/50 transition-colors"
               />
             </div>
 
             <div className="space-y-2.5">
-              <label className="text-sm font-medium text-gray-700">Amount range</label>
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-primary" />
+                Amount range
+              </label>
               <div className="flex gap-3">
                 <Input
                   type="number"
                   placeholder="Min"
                   value={filters.minAmount}
                   onChange={(e) => setFilters({ ...filters, minAmount: e.target.value })}
-                  className="bg-white"
+                  className="bg-white hover:border-primary/50 transition-colors"
                 />
                 <Input
                   type="number"
                   placeholder="Max"
                   value={filters.maxAmount}
                   onChange={(e) => setFilters({ ...filters, maxAmount: e.target.value })}
-                  className="bg-white"
+                  className="bg-white hover:border-primary/50 transition-colors"
                 />
               </div>
             </div>
 
             <div className="space-y-2.5">
-              <label className="text-sm font-medium text-gray-700">Start date</label>
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                Start date
+              </label>
               <Input
                 type="date"
                 value={filters.startDate}
                 onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-                className="bg-white"
+                className="bg-white hover:border-primary/50 transition-colors"
               />
             </div>
 
             <div className="space-y-2.5">
-              <label className="text-sm font-medium text-gray-700">End date</label>
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                End date
+              </label>
               <Input
                 type="date"
                 value={filters.endDate}
                 onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-                className="bg-white"
+                className="bg-white hover:border-primary/50 transition-colors"
               />
             </div>
           </div>
@@ -299,7 +305,7 @@ export default function InvoiceList() {
                         value={invoice.status}
                         onValueChange={(value) => updateStatusMutation.mutate({ id: invoice.id, status: value })}
                       >
-                        <SelectTrigger className="h-7 w-32 bg-white">
+                        <SelectTrigger className="h-7 w-32 bg-white hover:border-primary/50 transition-colors">
                           <SelectValue placeholder="Update status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -319,13 +325,21 @@ export default function InvoiceList() {
                     </p>
                     <div className="flex gap-2 mt-3">
                       <Link href={`/edit-invoice/${invoice.id}`}>
-                        <Button variant="outline" size="sm" className="border-gray-200 hover:border-gray-300">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-200 hover:border-primary/50 transition-colors"
+                        >
                           <Pencil className="h-4 w-4" />
                         </Button>
                       </Link>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="border-gray-200 hover:border-gray-300">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-200 hover:border-red-200 transition-colors"
+                          >
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>
                         </AlertDialogTrigger>
@@ -340,7 +354,7 @@ export default function InvoiceList() {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => deleteInvoiceMutation.mutate(invoice.id)}
-                              className="bg-red-500 hover:bg-red-600"
+                              className="bg-red-500 hover:bg-red-600 transition-colors"
                             >
                               Delete
                             </AlertDialogAction>
@@ -351,7 +365,7 @@ export default function InvoiceList() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-gray-200 hover:border-gray-300"
+                          className="border-gray-200 hover:border-primary/50 transition-colors"
                           onClick={() => emailInvoiceMutation.mutate({
                             id: invoice.id,
                             email: invoice.clientEmail
@@ -374,7 +388,7 @@ export default function InvoiceList() {
             <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No invoices found</p>
             <Link href="/create-invoice">
-              <Button className="mt-4">
+              <Button className="mt-4 bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90 transition-all duration-200">
                 <Plus className="h-4 w-4 mr-2" />
                 Create your first invoice
               </Button>
