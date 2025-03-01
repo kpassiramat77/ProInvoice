@@ -1,14 +1,17 @@
 import { type ReactNode } from "react";
 import { type Invoice } from "@shared/schema";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { type BusinessSettings } from "../invoice-templates";
 import { useBusinessInfo } from "./index";
 import type { InvoiceTemplateProps } from "../invoice-templates";
 
 export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
   const businessInfo = useBusinessInfo();
-  const totalAmount = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
-  const tax = 0;
-  const subTotal = totalAmount;
+  const subTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
+  const taxRate = 0.1; // 10% tax rate
+  const tax = subTotal * taxRate;
+  const totalAmount = subTotal + tax;
 
   return (
     <div className={cn("max-w-3xl mx-auto p-8 bg-white shadow-md rounded-lg border border-gray-300", className)}>
@@ -85,7 +88,7 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
               <p className="font-medium">${subTotal.toFixed(2)}</p>
             </div>
             <div className="flex justify-between">
-              <p className="text-gray-600">Tax:</p>
+              <p className="text-gray-600">Tax (10%):</p>
               <p className="font-medium">${tax.toFixed(2)}</p>
             </div>
             <div className="flex justify-between text-lg font-bold">

@@ -14,7 +14,10 @@ function useBusinessInfo() {
 
 export function ProfessionalTemplate({ invoice, className }: { invoice: Invoice & { lineItems: Array<{ description: string; quantity: number; unitPrice: number; amount: number }> }, className?: string }) {
   const businessInfo = useBusinessInfo();
-  const totalAmount = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
+  const subTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
+  const taxRate = 0.1; // 10% tax rate
+  const tax = subTotal * taxRate;
+  const totalAmount = subTotal + tax;
 
   return (
     <div className={cn("max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg border border-gray-300", className)}>
@@ -81,9 +84,19 @@ export function ProfessionalTemplate({ invoice, className }: { invoice: Invoice 
 
       {/* Payment Info */}
       <div className="mt-6 flex justify-end text-sm text-gray-700 border-t pt-4">
-        <div className="text-right">
-          <p className="font-bold">GRAND TOTAL :</p>
-          <p className="text-xl font-bold text-blue-600">${totalAmount.toFixed(2)}</p>
+        <div className="w-48 space-y-1">
+          <div className="flex justify-between">
+            <p className="text-gray-600">Subtotal:</p>
+            <p className="font-medium">${subTotal.toFixed(2)}</p>
+          </div>
+          <div className="flex justify-between">
+            <p className="text-gray-600">Tax (10%):</p>
+            <p className="font-medium">${tax.toFixed(2)}</p>
+          </div>
+          <div className="flex justify-between text-lg font-bold">
+            <p>Total:</p>
+            <p className="text-blue-600">${totalAmount.toFixed(2)}</p>
+          </div>
         </div>
       </div>
 
