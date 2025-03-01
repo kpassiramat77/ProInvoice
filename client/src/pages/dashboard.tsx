@@ -472,7 +472,7 @@ export default function Dashboard() {
               <h3 className="text-lg font-medium text-gray-900 mb-2">No invoices yet</h3>
               <p className="text-sm text-gray-500 mb-4">Create your first invoice to get started</p>
               <Link href="/create-invoice">
-                <Button>
+                <Button className="bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90 transition-all duration-200">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Invoice
                 </Button>
@@ -488,7 +488,8 @@ export default function Dashboard() {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium text-gray-900">{invoice.clientName}</p>
-                          <p className="text-sm text-gray-500 mt-0.5">
+                          <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
                             #{invoice.invoiceNumber}
                           </p>
                           <div className="mt-2">
@@ -497,7 +498,8 @@ export default function Dashboard() {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-semibold text-gray-900">${invoiceTotal.toFixed(2)}</p>
-                          <p className="text-sm text-gray-500 mt-0.5">
+                          <p className="text-sm text-gray-500 mt-0.5 flex items-center justify-end gap-1">
+                            <Calendar className="h-4 w-4" />
                             Due: {new Date(invoice.dueDate).toLocaleDateString()}
                           </p>
                           <div className="flex gap-2 mt-3">
@@ -505,7 +507,7 @@ export default function Dashboard() {
                               variant="outline"
                               size="sm"
                               onClick={() => setLocation(`/edit-invoice/${invoice.id}`)}
-                              className="border-gray-200 hover:border-gray-300"
+                              className="border-gray-200 hover:border-primary/50 transition-colors"
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -514,7 +516,7 @@ export default function Dashboard() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="border-gray-200 hover:border-gray-300"
+                                  className="border-gray-200 hover:border-red-200 transition-colors"
                                 >
                                   <Trash2 className="h-4 w-4 text-red-500" />
                                 </Button>
@@ -530,7 +532,7 @@ export default function Dashboard() {
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => deleteInvoiceMutation.mutate(invoice.id)}
-                                    className="bg-red-500 hover:bg-red-600"
+                                    className="bg-red-500 hover:bg-red-600 transition-colors"
                                   >
                                     Delete
                                   </AlertDialogAction>
@@ -560,7 +562,7 @@ export default function Dashboard() {
             </Button>
           </div>
 
-          <Card className="bg-white shadow-sm">
+          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -578,10 +580,13 @@ export default function Dashboard() {
                         name="description"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Description</FormLabel>
+                            <FormLabel className="flex items-center gap-2 text-gray-700">
+                              <Tag className="h-4 w-4 text-primary" />
+                              Description
+                            </FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <Input {...field} placeholder="Enter expense description" />
+                                <Input {...field} placeholder="Enter expense description" className="bg-white hover:border-primary/50 transition-colors" />
                                 {categorizeMutation.isPending && (
                                   <Brain className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground animate-pulse" />
                                 )}
@@ -597,7 +602,10 @@ export default function Dashboard() {
                         name="amount"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Amount</FormLabel>
+                            <FormLabel className="flex items-center gap-2 text-gray-700">
+                              <DollarSign className="h-4 w-4 text-primary" />
+                              Amount
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -605,22 +613,26 @@ export default function Dashboard() {
                                 {...field}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
                                 placeholder="0.00"
+                                className="bg-white hover:border-primary/50 transition-colors"
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                      {/* Added Category and Subcategory fields here */}
+
                       <FormField
                         control={form.control}
                         name="category"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Category</FormLabel>
+                            <FormLabel className="flex items-center gap-2 text-gray-700">
+                              <Tag className="h-4 w-4 text-primary" />
+                              Category
+                            </FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <Input {...field} placeholder="Category" className="bg-white" />
+                                <Input {...field} placeholder="Category" className="bg-white hover:border-primary/50 transition-colors" />
                               </div>
                             </FormControl>
                             <FormMessage />
@@ -633,15 +645,17 @@ export default function Dashboard() {
                         name="date"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Date</FormLabel>
+                            <FormLabel className="flex items-center gap-2 text-gray-700">
+                              <Calendar className="h-4 w-4 text-primary" />
+                              Date
+                            </FormLabel>
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <Input type="date" {...field} className="bg-white hover:border-primary/50 transition-colors" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
                     </div>
 
                     {aiSuggestion && (
@@ -662,7 +676,7 @@ export default function Dashboard() {
                     <Button
                       type="submit"
                       className={cn(
-                        "w-full",
+                        "w-full bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90 transition-all duration-200",
                         expenseMutation.isPending && "opacity-50 cursor-not-allowed"
                       )}
                       disabled={expenseMutation.isPending}
@@ -674,6 +688,7 @@ export default function Dashboard() {
                 </Form>
               </div>
 
+              {/* Recent Expenses List */}
               {loadingExpenses ? (
                 <LoadingSkeleton />
               ) : expenses?.length === 0 ? (
@@ -704,7 +719,8 @@ export default function Dashboard() {
                                 </Badge>
                               </>
                             )}
-                            <span className="text-xs text-gray-500 ml-1.5">
+                            <span className="text-xs text-gray-500 ml-1.5 flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
                               {new Date(expense.date).toLocaleDateString()}
                             </span>
                           </div>
@@ -717,7 +733,7 @@ export default function Dashboard() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0"
+                              className="h-8 w-8 p-0 hover:text-primary transition-colors"
                               onClick={() => setLocation(`/edit-expense/${expense.id}`)}
                             >
                               <Pencil className="h-4 w-4" />
@@ -728,7 +744,7 @@ export default function Dashboard() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600 transition-colors"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                   <span className="sr-only">Delete</span>
@@ -745,7 +761,7 @@ export default function Dashboard() {
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => deleteExpenseMutation.mutate(expense.id)}
-                                    className="bg-red-500 hover:bg-red-600"
+                                    className="bg-red-500 hover:bg-red-600 transition-colors"
                                   >
                                     Delete
                                   </AlertDialogAction>
