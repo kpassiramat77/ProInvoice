@@ -48,7 +48,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     resolver: zodResolver(insertExpenseSchema),
     defaultValues: {
       description: "",
-      amount: 0,
+      amount: "",
       category: "Other",
       date: new Date().toISOString().split('T')[0],
       userId: 1,
@@ -58,15 +58,30 @@ export default function EditExpense({ params }: { params: { id: string } }) {
   // Update form when expense data is loaded
   React.useEffect(() => {
     if (expense) {
-      form.reset({
-        description: expense.description,
-        amount: Number(expense.amount),
-        category: expense.category,
-        date: new Date(expense.date).toISOString().split('T')[0],
-        userId: expense.userId,
-      });
+      try {
+        // Ensure proper date formatting
+        const dateStr = expense.date instanceof Date 
+          ? expense.date.toISOString().split('T')[0]
+          : new Date(expense.date).toISOString().split('T')[0];
+
+        form.reset({
+          description: expense.description,
+          amount: expense.amount,
+          category: expense.category,
+          date: dateStr,
+          userId: expense.userId,
+          id: expense.id,
+        });
+      } catch (error) {
+        console.error("Error setting form data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load expense data. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
-  }, [expense, form]);
+  }, [expense, form, toast]);
 
   // Update mutation
   const updateMutation = useMutation({
@@ -74,6 +89,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
       const formattedData = {
         ...data,
         amount: String(data.amount),
+        date: new Date(data.date).toISOString(),
       };
 
       const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, formattedData);
@@ -153,10 +169,6 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                       type="number"
                       step="0.01"
                       {...field}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        field.onChange(value ? Number(value) : 0);
-                      }}
                       className="bg-white"
                     />
                   </FormControl>
