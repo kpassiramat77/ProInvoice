@@ -74,7 +74,11 @@ export default function InvoiceList() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      const response = await apiRequest("PATCH", `/api/invoices/${id}`, { status });
+      const response = await apiRequest("PATCH", `/api/invoices/${id}/status`, { status });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update status");
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -84,10 +88,10 @@ export default function InvoiceList() {
         description: "The invoice status has been updated successfully.",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to update status. Please try again.",
+        description: error.message || "Failed to update status. Please try again.",
         variant: "destructive",
       });
     },
