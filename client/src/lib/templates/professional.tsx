@@ -26,7 +26,6 @@ export function ProfessionalTemplate({ invoice, className }: { invoice: Invoice 
           )}
           <div>
             <h1 className="text-xl font-bold text-blue-600">{businessInfo?.businessName || "Business Name"}</h1>
-            <p className="text-xs text-gray-500">Professional Invoice Solutions</p>
           </div>
         </div>
         <div className="text-right">
