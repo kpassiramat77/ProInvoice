@@ -11,38 +11,59 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { ArrowLeft, Calendar, Tag, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
+import React from "react";
 
 export default function EditExpense({ params }: { params: { id: string } }) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Query for fetching expense data
   const { data: expense, isLoading: isLoadingExpense } = useQuery<Expense>({
-    queryKey: [`/api/expenses/${params.id}`],
+    queryKey: ["/api/expenses", params.id],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/expenses/${params.id}`);
+      if (!response.ok) throw new Error("Failed to fetch expense");
+      return response.json();
+    },
   });
 
+  // Form setup with proper types
   const form = useForm<Expense>({
     resolver: zodResolver(insertExpenseSchema),
     defaultValues: {
       description: "",
       amount: "",
       category: "",
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toLocaleDateString('en-CA'), // Format: YYYY-MM-DD
       userId: 1,
     },
-    values: expense, // This will update form values when expense data is fetched
   });
 
+  // Update form when expense data is loaded
+  React.useEffect(() => {
+    if (expense) {
+      form.reset({
+        ...expense,
+        date: new Date(expense.date).toLocaleDateString('en-CA'),
+      });
+    }
+  }, [expense, form]);
+
+  // Update mutation
   const updateMutation = useMutation({
     mutationFn: async (data: Expense) => {
-      const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, data);
+      const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, {
+        ...data,
+        amount: String(data.amount), // Ensure amount is sent as string
+      });
       if (!response.ok) {
         throw new Error("Failed to update expense");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/expenses/1"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
       toast({
         title: "Success",
         description: "Expense updated successfully.",
