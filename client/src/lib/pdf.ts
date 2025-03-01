@@ -1,82 +1,100 @@
 import { jsPDF } from "jspdf";
 import type { Invoice } from "@shared/schema";
+import { useBusinessInfo } from "./templates";
 
 export function generateInvoicePDF(invoice: Invoice & { lineItems: Array<{ description: string; quantity: number; unitPrice: number; amount: number }> }): string {
   const doc = new jsPDF();
 
-  // Add invoice header
-  doc.setFontSize(24);
-  doc.setTextColor(44, 82, 130); // Blue header
-  doc.text("INVOICE", 105, 20, { align: "center" });
+  // Set initial coordinates
+  let yPos = 20;
+  const leftMargin = 20;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const contentWidth = pageWidth - (leftMargin * 2);
 
-  // Add invoice details
+  // Header section with logo placeholder
+  doc.setFontSize(30);
+  doc.setTextColor(44, 82, 130); // Primary blue color
+  doc.text("INVOICE", pageWidth / 2, yPos, { align: "center" });
+  yPos += 20;
+
+  // Invoice details
+  doc.setFontSize(10);
+  doc.setTextColor(100, 100, 100); // Gray text
+  doc.text(`Invoice #: ${invoice.invoiceNumber}`, leftMargin, yPos);
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, pageWidth - leftMargin - 40, yPos);
+  yPos += 8;
+  doc.text(`Due Date: ${new Date(invoice.dueDate).toLocaleDateString()}`, pageWidth - leftMargin - 40, yPos);
+
+  // Bill To section
+  yPos += 20;
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
-  doc.text(`Invoice #: ${invoice.invoiceNumber}`, 20, 40);
-  doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 50);
-  doc.text(`Due Date: ${new Date(invoice.dueDate).toLocaleDateString()}`, 20, 60);
-
-  // Add client details
-  doc.setFontSize(14);
-  doc.setFont("helvetica", 'bold');
-  doc.text(`Bill To:`, 20, 80);
-  doc.setFont("helvetica", 'normal');
-  doc.setFontSize(12);
-  doc.text(invoice.clientName, 20, 90);
+  doc.setFont("helvetica", "bold");
+  doc.text("Bill To:", leftMargin, yPos);
+  yPos += 8;
+  doc.setFont("helvetica", "normal");
+  doc.text(invoice.clientName, leftMargin, yPos);
   if (invoice.clientEmail) {
-    doc.text(invoice.clientEmail, 20, 98);
+    yPos += 6;
+    doc.text(invoice.clientEmail, leftMargin, yPos);
   }
 
-  // Add line items table
-  doc.setFontSize(12);
-  doc.setFont("helvetica", 'bold');
-  let yPos = 120;
+  // Line items table
+  yPos += 20;
 
   // Table headers
-  doc.text("Description", 20, yPos);
-  doc.text("Qty", 120, yPos);
-  doc.text("Rate", 140, yPos);
-  doc.text("Amount", 170, yPos);
+  const colWidths = {
+    qty: 20,
+    desc: contentWidth - 100,
+    rate: 40,
+    amount: 40
+  };
 
-  doc.setFont("helvetica", 'normal');
+  doc.setFont("helvetica", "bold");
+  doc.setFillColor(247, 248, 250); // Light gray background
+  doc.rect(leftMargin, yPos - 5, contentWidth, 10, "F");
+  doc.text("QTY", leftMargin, yPos);
+  doc.text("DESCRIPTION", leftMargin + colWidths.qty, yPos);
+  doc.text("RATE", pageWidth - leftMargin - colWidths.rate - colWidths.amount, yPos, { align: "right" });
+  doc.text("AMOUNT", pageWidth - leftMargin, yPos, { align: "right" });
   yPos += 10;
 
   // Line items
+  doc.setFont("helvetica", "normal");
   invoice.lineItems.forEach((item) => {
-    // Ensure the description fits within the allocated space
-    const descriptionLines = doc.splitTextToSize(item.description, 90);
-    doc.text(descriptionLines, 20, yPos);
-    doc.text(item.quantity.toString(), 120, yPos);
-    doc.text(`$${item.unitPrice.toFixed(2)}`, 140, yPos);
-    doc.text(`$${item.amount.toFixed(2)}`, 170, yPos);
-    yPos += descriptionLines.length > 1 ? 10 * descriptionLines.length : 10;
+    doc.text(item.quantity.toString(), leftMargin, yPos);
+    const descriptionLines = doc.splitTextToSize(item.description, colWidths.desc);
+    doc.text(descriptionLines, leftMargin + colWidths.qty, yPos);
+    doc.text(`$${item.unitPrice.toFixed(2)}`, pageWidth - leftMargin - colWidths.amount, yPos, { align: "right" });
+    doc.text(`$${item.amount.toFixed(2)}`, pageWidth - leftMargin, yPos, { align: "right" });
+    yPos += descriptionLines.length > 1 ? 8 * descriptionLines.length : 8;
   });
 
-  // Calculate totals
+  // Totals section
+  yPos += 10;
+  const totalsStartX = pageWidth - leftMargin - 80;
   const subTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
   const tax = subTotal * Number(invoice.taxRate || 0);
   const total = subTotal + tax;
 
-  // Add totals
-  yPos += 10;
-  doc.text("Subtotal:", 140, yPos);
-  doc.text(`$${subTotal.toFixed(2)}`, 170, yPos);
+  doc.text("Subtotal:", totalsStartX, yPos);
+  doc.text(`$${subTotal.toFixed(2)}`, pageWidth - leftMargin, yPos, { align: "right" });
+  yPos += 8;
 
-  yPos += 10;
-  doc.text(`Tax (${(Number(invoice.taxRate || 0) * 100).toFixed(0)}%):`, 140, yPos);
-  doc.text(`$${tax.toFixed(2)}`, 170, yPos);
+  doc.text(`Tax (${(Number(invoice.taxRate || 0) * 100).toFixed(0)}%):`, totalsStartX, yPos);
+  doc.text(`$${tax.toFixed(2)}`, pageWidth - leftMargin, yPos, { align: "right" });
+  yPos += 8;
 
-  yPos += 10;
-  doc.setFont("helvetica", 'bold');
-  doc.text("Total:", 140, yPos);
-  doc.text(`$${total.toFixed(2)}`, 170, yPos);
+  doc.setFont("helvetica", "bold");
+  doc.text("Total:", totalsStartX, yPos);
+  doc.text(`$${total.toFixed(2)}`, pageWidth - leftMargin, yPos, { align: "right" });
 
-  // Add footer
+  // Footer
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.setFont("helvetica", 'normal');
-  doc.setTextColor(128, 128, 128); // Gray footer
-  doc.text("Thank you for your business!", 105, 280, { align: "center" });
-  doc.text("Payment is due within 30 days of invoice date.", 105, 286, { align: "center" });
+  doc.setTextColor(128, 128, 128);
+  doc.text("Thank you for your business!", pageWidth / 2, 270, { align: "center" });
+  doc.text("Payment is due within 30 days of invoice date.", pageWidth / 2, 276, { align: "center" });
 
   return doc.output("datauristring");
 }

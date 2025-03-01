@@ -109,7 +109,33 @@ export default function CreateInvoice() {
           <div className="lg:order-1 order-2">
             <Card className="p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:shadow-xl">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
+                <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">             <FormField
+                    control={form.control}
+                    name="template"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <Palette className="h-4 w-4 text-primary" />
+                          Template Style
+                        </FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className="bg-white hover:border-primary/50 transition-colors">
+                              <SelectValue placeholder="Select a template" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.entries(templates).map(([id, template]) => (
+                              <SelectItem key={id} value={id}>
+                                {template.name} - {template.description}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -173,33 +199,7 @@ export default function CreateInvoice() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="template"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2 text-gray-700">
-                          <Palette className="h-4 w-4 text-primary" />
-                          Template Style
-                        </FormLabel>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <FormControl>
-                            <SelectTrigger className="bg-white hover:border-primary/50 transition-colors">
-                              <SelectValue placeholder="Select a template" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.entries(templates).map(([id, template]) => (
-                              <SelectItem key={id} value={id}>
-                                {template.name} - {template.description}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
