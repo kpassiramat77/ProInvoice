@@ -33,7 +33,19 @@ const EXPENSE_CATEGORIES = [
   "Other",
 ] as const;
 
-// Updated category icons mapping with Wrench instead of Tool
+const CATEGORY_COLORS = {
+  "Office Supplies": "from-blue-100 to-indigo-100 text-blue-800",
+  "Travel": "from-purple-100 to-fuchsia-100 text-purple-800",
+  "Software": "from-green-100 to-emerald-100 text-green-800",
+  "Hardware": "from-cyan-100 to-sky-100 text-cyan-800",
+  "Marketing": "from-orange-100 to-amber-100 text-orange-800",
+  "Professional Services": "from-violet-100 to-purple-100 text-violet-800",
+  "Utilities": "from-yellow-100 to-amber-100 text-yellow-800",
+  "Food & Drinks": "from-pink-100 to-rose-100 text-pink-800",
+  "Transportation": "from-teal-100 to-cyan-100 text-teal-800",
+  "Other": "from-gray-100 to-slate-100 text-gray-800"
+};
+
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   "Office Supplies": <ShoppingBag className="h-4 w-4" />,
   "Travel": <Car className="h-4 w-4" />,
@@ -138,20 +150,22 @@ export default function ExpenseList() {
     <div className="container mx-auto py-8 px-6">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
+          <div className="p-2 bg-gradient-to-r from-primary/10 to-primary/20 rounded-lg">
             <DollarSign className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold">All Expenses</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+            All Expenses
+          </h1>
         </div>
       </div>
 
       {/* Summary Statistics */}
       <div className="grid md:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-white shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md transition-all duration-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-gray-600">Total Expenses</h3>
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
                 <DollarSign className="h-4 w-4 text-primary" />
               </div>
             </div>
@@ -160,11 +174,11 @@ export default function ExpenseList() {
           </div>
         </Card>
 
-        <Card className="bg-white shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md transition-all duration-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-gray-600">Average Expense</h3>
-              <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-50 to-green-50 flex items-center justify-center">
                 <TrendingUp className="h-4 w-4 text-emerald-600" />
               </div>
             </div>
@@ -173,11 +187,11 @@ export default function ExpenseList() {
           </div>
         </Card>
 
-        <Card className="bg-white shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md transition-all duration-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-gray-600">Most Common Category</h3>
-              <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
                 <Tag className="h-4 w-4 text-blue-600" />
               </div>
             </div>
@@ -318,12 +332,15 @@ export default function ExpenseList() {
 
       <div className="grid md:grid-cols-2 gap-4">
         {filteredExpenses?.map((expense) => (
-          <Card key={expense.id} className="p-5 bg-white shadow-sm hover:shadow-md transition-all duration-200">
+          <Card key={expense.id} className="p-5 bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5">
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-medium text-gray-900">{expense.description}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-1">
+                  <Badge 
+                    variant="secondary" 
+                    className={`bg-gradient-to-r ${CATEGORY_COLORS[expense.category]} flex items-center gap-1 shadow-sm`}
+                  >
                     {CATEGORY_ICONS[expense.category] || <CreditCard className="h-3 w-3" />}
                     {expense.category}
                   </Badge>

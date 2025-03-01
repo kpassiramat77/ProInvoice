@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { FileText, Plus, Pencil, Trash2, Filter, X, Mail, Clock, Check, AlertTriangle, Search, Calendar, DollarSign } from "lucide-react";
+import { FileText, Plus, Pencil, Trash2, Filter, X, Mail, Clock, Check, AlertTriangle, Search, Calendar, DollarSign, TrendingUp, Tag } from "lucide-react";
 import type { Invoice } from "@shared/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +20,18 @@ import { useState } from "react";
 
 const INVOICE_STATUSES = ["all", "pending", "paid", "overdue"] as const;
 const INVOICE_STATUS_OPTIONS = ["pending", "paid", "overdue"] as const;
+
+const STATUS_COLORS = {
+  pending: "bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border-yellow-200",
+  paid: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200",
+  overdue: "bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border-red-200"
+};
+
+const STATUS_ICONS = {
+  pending: <Clock className="h-3 w-3" />,
+  paid: <Check className="h-3 w-3" />,
+  overdue: <AlertTriangle className="h-3 w-3" />
+};
 
 export default function InvoiceList() {
   const { toast } = useToast();
@@ -139,6 +151,21 @@ export default function InvoiceList() {
     });
   };
 
+  // Calculate summary statistics
+  const totalAmount = filteredInvoices?.reduce((sum, inv) => {
+    const invoiceTotal = inv.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
+    return sum + invoiceTotal;
+  }, 0) || 0;
+
+  const averageAmount = filteredInvoices?.length 
+    ? totalAmount / filteredInvoices.length 
+    : 0;
+
+  const statusCounts = filteredInvoices?.reduce((acc, inv) => ({
+    ...acc,
+    [inv.status]: (acc[inv.status] || 0) + 1
+  }), {} as Record<string, number>) || {};
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -151,17 +178,68 @@ export default function InvoiceList() {
     <div className="container mx-auto py-8 px-6">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
+          <div className="p-2 bg-gradient-to-r from-primary/10 to-primary/20 rounded-lg">
             <FileText className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold">All Invoices</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+            All Invoices
+          </h1>
         </div>
         <Link href="/create-invoice">
-          <Button className="bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90 transition-all duration-200">
+          <Button className="bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90 transition-all duration-200 shadow-lg shadow-primary/20 hover:shadow-xl">
             <Plus className="h-4 w-4 mr-2" />
             New Invoice
           </Button>
         </Link>
+      </div>
+
+      {/* Summary Statistics */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <Card className="bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-gray-600">Total Revenue</h3>
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+                <DollarSign className="h-4 w-4 text-primary" />
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-gray-900">${totalAmount.toFixed(2)}</p>
+            <p className="text-sm text-gray-500 mt-1">{filteredInvoices?.length || 0} invoices</p>
+          </div>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-gray-600">Average Invoice</h3>
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-50 to-green-50 flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 text-emerald-600" />
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-gray-900">${averageAmount.toFixed(2)}</p>
+            <p className="text-sm text-gray-500 mt-1">per invoice</p>
+          </div>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-gray-600">Payment Status</h3>
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+                <Tag className="h-4 w-4 text-blue-600" />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              {Object.entries(statusCounts).map(([status, count]) => (
+                <Badge key={status} className={`${STATUS_COLORS[status as keyof typeof STATUS_COLORS]} flex items-center gap-1`}>
+                  {STATUS_ICONS[status as keyof typeof STATUS_ICONS]}
+                  {count}
+                </Badge>
+              ))}
+            </div>
+            <p className="text-sm text-gray-500 mt-2">current status</p>
+          </div>
+        </Card>
       </div>
 
       {/* Filters */}
@@ -275,7 +353,7 @@ export default function InvoiceList() {
         {filteredInvoices?.map((invoice) => {
           const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
           return (
-            <Card key={invoice.id} className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+            <Card key={invoice.id} className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200 transform hover:-translate-y-0.5">
               <div className="p-5">
                 <div className="flex justify-between items-start">
                   <div>
@@ -291,14 +369,8 @@ export default function InvoiceList() {
                       </p>
                     )}
                     <div className="flex items-center gap-2">
-                      <span className={`status-label inline-flex items-center ${
-                        invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                        invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {invoice.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
-                        {invoice.status === 'paid' && <Check className="h-3 w-3 mr-1" />}
-                        {invoice.status === 'overdue' && <AlertTriangle className="h-3 w-3 mr-1" />}
+                      <span className={`status-label ${STATUS_COLORS[invoice.status]} flex items-center gap-1 shadow-sm`}>
+                        {STATUS_ICONS[invoice.status]}
                         {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                       </span>
                       <Select
