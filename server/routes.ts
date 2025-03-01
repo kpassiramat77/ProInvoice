@@ -180,6 +180,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
   app.use("/uploads", express.static("uploads"));
 
+  app.patch("/api/invoices/:id/status", async (req, res) => {
+    try {
+      const updatedInvoice = await storage.updateInvoiceStatus(Number(req.params.id), req.body.status);
+      res.json(updatedInvoice);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

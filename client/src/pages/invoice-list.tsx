@@ -19,6 +19,7 @@ import {
 import { useState } from "react";
 
 const INVOICE_STATUSES = ["all", "pending", "paid", "overdue"] as const;
+const INVOICE_STATUS_OPTIONS = ["pending", "paid", "overdue"] as const;
 
 function InvoiceStatusBadge({ status }: { status: string }) {
   const variants: Record<string, string> = {
@@ -66,6 +67,27 @@ export default function InvoiceList() {
       toast({
         title: "Error",
         description: "Failed to delete invoice. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      const response = await apiRequest("PATCH", `/api/invoices/${id}`, { status });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices/1"] });
+      toast({
+        title: "Status updated",
+        description: "The invoice status has been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update status. Please try again.",
         variant: "destructive",
       });
     },
@@ -204,14 +226,31 @@ export default function InvoiceList() {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="font-medium text-gray-900">{invoice.clientName}</p>
-                  <p className="text-sm text-gray-500 mt-1">#{invoice.invoiceNumber}</p>
-                  <div className="mt-2">
+                  <p className="text-sm text-gray-500 mb-2">
+                    #{invoice.invoiceNumber}
+                  </p>
+                  <div className="flex items-center gap-2">
                     <InvoiceStatusBadge status={invoice.status} />
+                    <Select
+                      value={invoice.status}
+                      onValueChange={(value) => updateStatusMutation.mutate({ id: invoice.id, status: value })}
+                    >
+                      <SelectTrigger className="h-7 w-32">
+                        <SelectValue placeholder="Update status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INVOICE_STATUS_OPTIONS.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-semibold text-gray-900">${invoiceTotal.toFixed(2)}</p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500">
                     Due: {new Date(invoice.dueDate).toLocaleDateString()}
                   </p>
                   <div className="flex gap-2 mt-2">

@@ -49,6 +49,10 @@ function NavigationLinks({ onClick }: { onClick?: () => void }) {
         <FileText className="h-4 w-4" />
         Dashboard
       </NavLink>
+      <NavLink href="/create-invoice" onClick={onClick}>
+        <PlusCircle className="h-4 w-4" />
+        New Invoice
+      </NavLink>
       <NavLink href="/invoices" onClick={onClick}>
         <FileText className="h-4 w-4" />
         Invoices
@@ -56,10 +60,6 @@ function NavigationLinks({ onClick }: { onClick?: () => void }) {
       <NavLink href="/expenses" onClick={onClick}>
         <FileText className="h-4 w-4" />
         Expenses
-      </NavLink>
-      <NavLink href="/create-invoice" onClick={onClick}>
-        <PlusCircle className="h-4 w-4" />
-        New Invoice
       </NavLink>
       <NavLink href="/business-settings" onClick={onClick}>
         <Building2 className="h-4 w-4" />
