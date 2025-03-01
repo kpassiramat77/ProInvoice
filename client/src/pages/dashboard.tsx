@@ -476,21 +476,6 @@ export default function Dashboard() {
 
                       <FormField
                         control={form.control}
-                        name="subCategory"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Sub Category</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input {...field} placeholder="Sub Category" className="bg-white" />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
                         name="date"
                         render={({ field }) => (
                           <FormItem>
@@ -502,6 +487,7 @@ export default function Dashboard() {
                           </FormItem>
                         )}
                       />
+
                     </div>
 
                     {aiSuggestion && (
