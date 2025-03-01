@@ -26,6 +26,28 @@
   }
 
   .status-label {
-    @apply text-xs font-medium px-2.5 py-0.5 rounded-full;
+    @apply text-xs font-medium px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg;
+  }
+
+  .icon-container {
+    @apply p-2 bg-primary/10 rounded-lg transition-colors duration-200;
+  }
+
+  .icon-text {
+    @apply flex items-center gap-2 text-gray-700;
+  }
+
+  .metric-card {
+    @apply bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-6;
+  }
+
+  .metric-icon {
+    @apply h-8 w-8 rounded-full flex items-center justify-center;
   }
 }

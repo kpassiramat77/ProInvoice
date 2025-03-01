@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { templates } from "@/lib/invoice-templates";
-import { FileText, Plus, Trash2, Mail, UserPlus, Calendar, Receipt, Palette } from "lucide-react";
+import { FileText, Plus, Trash2, Mail, UserPlus, Calendar, Receipt, Palette, DollarSign, Tag, Percent } from "lucide-react";
 
 const defaultDueDate = new Date();
 defaultDueDate.setDate(defaultDueDate.getDate() + 30);
@@ -106,7 +106,7 @@ export default function CreateInvoice() {
 
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="lg:order-1 order-2">
-            <Card className="p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <Card className="p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:shadow-xl">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
                   <FormField
@@ -114,13 +114,13 @@ export default function CreateInvoice() {
                     name="template"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Palette className="h-4 w-4 text-gray-500" />
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <Palette className="h-4 w-4 text-primary" />
                           Template Style
                         </FormLabel>
                         <Select value={field.value} onValueChange={field.onChange}>
                           <FormControl>
-                            <SelectTrigger className="bg-white">
+                            <SelectTrigger className="bg-white hover:border-primary/50 transition-colors">
                               <SelectValue placeholder="Select a template" />
                             </SelectTrigger>
                           </FormControl>
@@ -143,12 +143,12 @@ export default function CreateInvoice() {
                       name="clientName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2">
-                            <UserPlus className="h-4 w-4 text-gray-500" />
+                          <FormLabel className="flex items-center gap-2 text-gray-700">
+                            <UserPlus className="h-4 w-4 text-primary" />
                             Client Name
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} className="bg-white" placeholder="Enter client name" />
+                            <Input {...field} className="bg-white hover:border-primary/50 transition-colors" placeholder="Enter client name" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -160,15 +160,15 @@ export default function CreateInvoice() {
                       name="clientEmail"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-gray-500" />
+                          <FormLabel className="flex items-center gap-2 text-gray-700">
+                            <Mail className="h-4 w-4 text-primary" />
                             Client Email
                           </FormLabel>
                           <FormControl>
                             <Input
                               type="email"
                               {...field}
-                              className="bg-white"
+                              className="bg-white hover:border-primary/50 transition-colors"
                               placeholder="Enter client email"
                             />
                           </FormControl>
@@ -183,14 +183,14 @@ export default function CreateInvoice() {
                     name="dueDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-gray-500" />
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <Calendar className="h-4 w-4 text-primary" />
                           Due Date
                         </FormLabel>
                         <FormControl>
                           <Input
                             type="date"
-                            className="bg-white"
+                            className="bg-white hover:border-primary/50 transition-colors"
                             {...field}
                             min={new Date().toISOString().split('T')[0]}
                           />
@@ -203,8 +203,8 @@ export default function CreateInvoice() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Receipt className="h-4 w-4 text-gray-500" />
-                        <h3 className="text-lg font-semibold">Line Items</h3>
+                        <Receipt className="h-5 w-5 text-primary" />
+                        <h3 className="text-lg font-semibold text-gray-900">Line Items</h3>
                       </div>
                       <Button
                         type="button"
@@ -216,6 +216,7 @@ export default function CreateInvoice() {
                           unitPrice: 0,
                           amount: 0,
                         })}
+                        className="hover:border-primary/50 transition-colors"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Item
@@ -223,16 +224,16 @@ export default function CreateInvoice() {
                     </div>
 
                     {fields.map((field, index) => (
-                      <div key={field.id} className="space-y-4 p-4 bg-gray-50 rounded-lg relative">
+                      <div key={field.id} className="space-y-4 p-4 bg-gray-50 rounded-lg relative hover:bg-gray-100/80 transition-colors">
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute top-2 right-2"
+                          className="absolute top-2 right-2 hover:text-red-600 transition-colors"
                           onClick={() => remove(index)}
                           disabled={fields.length === 1}
                         >
-                          <Trash2 className="h-4 w-4 text-red-500" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
 
                         <FormField
@@ -240,9 +241,12 @@ export default function CreateInvoice() {
                           name={`lineItems.${index}.description`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Description</FormLabel>
+                              <FormLabel className="flex items-center gap-2 text-gray-700">
+                                <Tag className="h-4 w-4 text-primary" />
+                                Description
+                              </FormLabel>
                               <FormControl>
-                                <Input {...field} className="bg-white" placeholder="Item description" />
+                                <Input {...field} className="bg-white hover:border-primary/50 transition-colors" placeholder="Item description" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -255,13 +259,16 @@ export default function CreateInvoice() {
                             name={`lineItems.${index}.quantity`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Quantity</FormLabel>
+                                <FormLabel className="flex items-center gap-2 text-gray-700">
+                                  <Percent className="h-4 w-4 text-primary" />
+                                  Quantity
+                                </FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
                                     step="1"
                                     min="1"
-                                    className="bg-white"
+                                    className="bg-white hover:border-primary/50 transition-colors"
                                     {...field}
                                     onChange={(e) => {
                                       field.onChange(Number(e.target.value));
@@ -279,13 +286,16 @@ export default function CreateInvoice() {
                             name={`lineItems.${index}.unitPrice`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Unit Price</FormLabel>
+                                <FormLabel className="flex items-center gap-2 text-gray-700">
+                                  <DollarSign className="h-4 w-4 text-primary" />
+                                  Unit Price
+                                </FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
                                     step="0.01"
                                     min="0"
-                                    className="bg-white"
+                                    className="bg-white hover:border-primary/50 transition-colors"
                                     {...field}
                                     onChange={(e) => {
                                       field.onChange(Number(e.target.value));
@@ -303,7 +313,10 @@ export default function CreateInvoice() {
                             name={`lineItems.${index}.amount`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Amount</FormLabel>
+                                <FormLabel className="flex items-center gap-2 text-gray-700">
+                                  <DollarSign className="h-4 w-4 text-primary" />
+                                  Amount
+                                </FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
@@ -333,7 +346,7 @@ export default function CreateInvoice() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90"
+                    className="w-full bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90 transition-all duration-200"
                     disabled={mutation.isPending}
                   >
                     {mutation.isPending ? "Creating..." : "Create Invoice"}
@@ -346,11 +359,11 @@ export default function CreateInvoice() {
           <div className="lg:order-2 order-1 lg:sticky lg:top-24 lg:self-start">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-gray-500" />
+                <FileText className="h-5 w-5 text-primary" />
                 <h2 className="text-xl font-semibold">Preview</h2>
               </div>
             </div>
-            <div className="overflow-hidden rounded-xl shadow-2xl">
+            <div className="overflow-hidden rounded-xl shadow-2xl transition-shadow hover:shadow-2xl">
               <InvoicePreview
                 invoice={{
                   ...form.getValues(),
