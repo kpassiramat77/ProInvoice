@@ -32,7 +32,6 @@ export default function EditExpense({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for fetching expense data
   const { data: expense, isLoading } = useQuery({
     queryKey: ["/api/expenses", params.id],
     queryFn: async () => {
@@ -42,7 +41,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
         const data = await response.json();
         return {
           ...data,
-          amount: String(data.amount),
+          amount: Number(data.amount), // Convert to number when receiving
           date: new Date(data.date).toISOString().split('T')[0],
         };
       } catch (error) {
@@ -52,30 +51,27 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     },
   });
 
-  // Form setup
   const form = useForm<Expense>({
     resolver: zodResolver(insertExpenseSchema),
     defaultValues: {
       description: "",
-      amount: "",
+      amount: 0, // Set default as number
       category: "",
       date: new Date().toISOString().split('T')[0],
     },
   });
 
-  // Update form when expense data is loaded
   React.useEffect(() => {
     if (expense) {
       form.reset(expense);
     }
   }, [expense, form]);
 
-  // Update mutation
   const updateMutation = useMutation({
     mutationFn: async (data: Expense) => {
       const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, {
         ...data,
-        amount: String(data.amount),
+        amount: Number(data.amount), // Ensure amount is number before sending
         date: new Date(data.date).toISOString(),
       });
       if (!response.ok) throw new Error("Failed to update expense");
@@ -152,7 +148,8 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                       type="number"
                       step="0.01"
                       {...field}
-                      value={field.value || ""}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      value={field.value || 0}
                       className="bg-white"
                     />
                   </FormControl>
