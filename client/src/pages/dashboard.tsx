@@ -340,64 +340,75 @@ export default function Dashboard() {
                   </p>
                 </div>
               ) : (
-                <div className="mt-6 space-y-2">
+                <div className="mt-4 divide-y divide-gray-100">
                   {expenses?.map((expense) => (
                     <div
                       key={expense.id}
-                      className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="py-2 first:pt-0 last:pb-0 hover:bg-gray-50 -mx-4 px-4 transition-colors"
                     >
-                      <div>
-                        <p className="font-medium text-gray-900">{expense.description}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="secondary">{expense.category}</Badge>
-                          {expense.subCategory && (
-                            <>
-                              <span className="text-xs text-gray-400">→</span>
-                              <Badge variant="outline" className="text-xs">
-                                {expense.subCategory}
-                              </Badge>
-                            </>
-                          )}
-                          <span className="text-xs text-gray-500">
-                            {new Date(expense.date).toLocaleDateString()}
-                          </span>
+                      <div className="flex justify-between items-center">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-gray-900 truncate">{expense.description}</p>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{expense.category}</Badge>
+                            {expense.subCategory && (
+                              <>
+                                <span className="text-xs text-gray-400">→</span>
+                                <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                                  {expense.subCategory}
+                                </Badge>
+                              </>
+                            )}
+                            <span className="text-xs text-gray-500 ml-1.5">
+                              {new Date(expense.date).toLocaleDateString()}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-gray-900 mr-4">
-                          ${Number(expense.amount).toFixed(2)}
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setLocation(`/edit-expense/${expense.id}`)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-4 w-4 text-red-500" />
+                        <div className="flex items-center gap-3 ml-4">
+                          <p className="font-semibold text-gray-900 tabular-nums">
+                            ${Number(expense.amount).toFixed(2)}
+                          </p>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => setLocation(`/edit-expense/${expense.id}`)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Expense</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete this expense? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteExpenseMutation.mutate(expense.id)}
-                                className="bg-red-500 hover:bg-red-600"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                  <span className="sr-only">Delete</span>
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this expense? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteExpenseMutation.mutate(expense.id)}
+                                    className="bg-red-500 hover:bg-red-600"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
