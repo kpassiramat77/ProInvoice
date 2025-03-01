@@ -22,25 +22,25 @@ export function ProfessionalTemplate({ invoice, className }: { invoice: Invoice 
       <div className="flex justify-between items-center pb-6 border-b border-gray-300">
         <div className="flex items-center gap-4">
           {businessInfo?.logo && (
-            <img src={businessInfo.logo} alt="Logo" className="w-16 h-16 object-contain" />
+            <img src={businessInfo.logo} alt="Logo" className="w-12 h-12 object-contain" />
           )}
           <div>
-            <h1 className="text-2xl font-bold text-blue-600">{businessInfo?.businessName || "Business Name"}</h1>
-            <p className="text-gray-500 text-sm">Professional Invoice Solutions</p>
+            <h1 className="text-xl font-bold text-blue-600">{businessInfo?.businessName || "Business Name"}</h1>
+            <p className="text-xs text-gray-500">Professional Invoice Solutions</p>
           </div>
         </div>
         <div className="text-right">
-          <h2 className="text-3xl font-bold text-blue-600">INVOICE</h2>
-          <p className="text-gray-600 text-sm">#{invoice.invoiceNumber}</p>
+          <h2 className="text-2xl font-bold text-blue-600">INVOICE</h2>
+          <p className="text-xs text-gray-600">#{invoice.invoiceNumber}</p>
         </div>
       </div>
 
       {/* Invoice Info */}
-      <div className="mt-6 flex justify-between text-sm text-gray-700">
+      <div className="mt-4 flex justify-between text-sm text-gray-700">
         <div>
           <p className="font-bold">Invoice to:</p>
           <p className="text-lg font-semibold">{invoice.clientName}</p>
-          {invoice.clientEmail && <p>{invoice.clientEmail}</p>}
+          {invoice.clientEmail && <p className="text-sm">{invoice.clientEmail}</p>}
         </div>
         <div className="text-right">
           <p className="font-bold">Invoice no: {invoice.invoiceNumber}</p>
@@ -81,11 +81,7 @@ export function ProfessionalTemplate({ invoice, className }: { invoice: Invoice 
       </div>
 
       {/* Payment Info */}
-      <div className="mt-6 flex justify-between text-sm text-gray-700 border-t pt-4">
-        <div>
-          <p className="font-bold">STATUS :</p>
-          <p className="capitalize">{invoice.status}</p>
-        </div>
+      <div className="mt-6 flex justify-end text-sm text-gray-700 border-t pt-4">
         <div className="text-right">
           <p className="font-bold">GRAND TOTAL :</p>
           <p className="text-xl font-bold text-blue-600">${totalAmount.toFixed(2)}</p>
@@ -105,20 +101,20 @@ export function ProfessionalTemplate({ invoice, className }: { invoice: Invoice 
 
       {/* Contact Info */}
       {businessInfo && (
-        <div className="mt-6 flex justify-around text-gray-700 text-sm border-t pt-4">
+        <div className="mt-4 flex justify-around text-gray-500 text-xs border-t pt-4">
           {businessInfo.phone && (
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4" /> {businessInfo.phone}
+            <div className="flex items-center gap-1">
+              <Phone className="h-3 w-3" /> {businessInfo.phone}
             </div>
           )}
           {businessInfo.email && (
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4" /> {businessInfo.email}
+            <div className="flex items-center gap-1">
+              <Mail className="h-3 w-3" /> {businessInfo.email}
             </div>
           )}
           {businessInfo.address && (
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" /> 
+            <div className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" /> 
               {`${businessInfo.address}, ${businessInfo.city}, ${businessInfo.state} ${businessInfo.zipCode}`}
             </div>
           )}
