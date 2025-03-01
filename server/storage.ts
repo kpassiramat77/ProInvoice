@@ -20,6 +20,8 @@ export interface IStorage {
   // Expense operations
   createExpense(expense: InsertExpense): Promise<Expense>;
   getExpensesByUserId(userId: number): Promise<Expense[]>;
+  deleteExpense(id: number): Promise<void>;
+  updateExpense(id: number, updateData: InsertExpense): Promise<Expense>;
 
   // Business Settings operations
   getBusinessSettings(userId: number): Promise<BusinessSettings | undefined>;
@@ -176,6 +178,22 @@ export class DatabaseStorage implements IStorage {
 
   async getExpensesByUserId(userId: number): Promise<Expense[]> {
     return await db.select().from(expenses).where(eq(expenses.userId, userId));
+  }
+
+  async deleteExpense(id: number): Promise<void> {
+    await db.delete(expenses).where(eq(expenses.id, id));
+  }
+
+  async updateExpense(id: number, updateData: InsertExpense): Promise<Expense> {
+    const [expense] = await db
+      .update(expenses)
+      .set({
+        ...updateData,
+        amount: updateData.amount.toString(),
+      })
+      .where(eq(expenses.id, id))
+      .returning();
+    return expense;
   }
 
   async getBusinessSettings(userId: number): Promise<BusinessSettings | undefined> {

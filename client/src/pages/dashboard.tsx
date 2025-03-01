@@ -94,6 +94,28 @@ export default function Dashboard() {
     },
   });
 
+  // Add this mutation inside the Dashboard component
+  const deleteExpenseMutation = useMutation({
+    mutationFn: async (expenseId: number) => {
+      const response = await apiRequest("DELETE", `/api/expenses/${expenseId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/expenses/1"] });
+      toast({
+        title: "Expense deleted",
+        description: "The expense has been successfully deleted.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete expense. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Calculate totals from line items
   const totalInvoices = invoices?.reduce((sum, invoice) => {
     const invoiceTotal = invoice.lineItems.reduce((itemSum, item) => itemSum + Number(item.amount), 0);
@@ -341,9 +363,42 @@ export default function Dashboard() {
                           </span>
                         </div>
                       </div>
-                      <p className="font-semibold text-gray-900">
-                        ${Number(expense.amount).toFixed(2)}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-gray-900 mr-4">
+                          ${Number(expense.amount).toFixed(2)}
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setLocation(`/edit-expense/${expense.id}`)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this expense? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteExpenseMutation.mutate(expense.id)}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   ))}
                 </div>

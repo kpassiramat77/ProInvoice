@@ -124,6 +124,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/expenses/:id", async (req, res) => {
+    try {
+      const data = insertExpenseSchema.parse(req.body);
+      const updatedExpense = await storage.updateExpense(Number(req.params.id), data);
+      res.json(updatedExpense);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/expenses/:id", async (req, res) => {
+    try {
+      await storage.deleteExpense(Number(req.params.id));
+      res.json({ message: "Expense deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   app.get("/api/business-settings/:userId", async (req, res) => {
     try {
       const settings = await storage.getBusinessSettings(Number(req.params.userId));
