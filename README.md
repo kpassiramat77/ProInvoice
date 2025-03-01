@@ -2,7 +2,12 @@
 
 ProInvoice is an AI-powered invoice generation and expense tracking platform that simplifies financial documentation with intelligent features and seamless data persistence.
 
-![ProInvoice Logo](generated-icon.png)
+![ProInvoice Banner](generated-icon.png)
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
 ## Features
 
@@ -38,8 +43,8 @@ ProInvoice is an AI-powered invoice generation and expense tracking platform tha
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/kpassiramat77/proinvoice.git
-   cd proinvoice
+   git clone https://github.com/kpassiramat77/ProInvoice.git
+   cd ProInvoice
    ```
 
 2. Install dependencies:
