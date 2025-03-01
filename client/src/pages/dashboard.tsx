@@ -145,6 +145,7 @@ export default function Dashboard() {
       description: "",
       amount: 0,
       category: "Other",
+      subCategory: "", //Added default value
       date: new Date().toISOString().split('T')[0],
       userId: 1, // Mock user ID
     },
@@ -191,6 +192,7 @@ export default function Dashboard() {
     onSuccess: (data) => {
       setAiSuggestion(data);
       form.setValue("category", data.mainCategory);
+      form.setValue("subCategory", data.subCategory); //Added to set subcategory
     },
   });
 
@@ -455,7 +457,38 @@ export default function Dashboard() {
                           </FormItem>
                         )}
                       />
+                      {/* Added Category and Subcategory fields here */}
+                      <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Category</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input {...field} placeholder="Category" className="bg-white" />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
+                      <FormField
+                        control={form.control}
+                        name="subCategory"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Sub Category</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input {...field} placeholder="Sub Category" className="bg-white" />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <FormField
                         control={form.control}
                         name="date"
