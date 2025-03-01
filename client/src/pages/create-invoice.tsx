@@ -40,13 +40,14 @@ export default function CreateInvoice() {
     resolver: zodResolver(insertInvoiceSchema),
     defaultValues: {
       clientName: "",
-      clientEmail: "", 
+      clientEmail: "",
       invoiceNumber: `INV-${Date.now()}`,
       description: "",
       status: "pending",
       dueDate: defaultDueDate.toISOString().split('T')[0],
-      userId: 1, 
+      userId: 1,
       template: "modern",
+      taxRate: 0, // Added default tax rate
       lineItems: [
         {
           description: "",
@@ -64,7 +65,9 @@ export default function CreateInvoice() {
   });
 
   const watchLineItems = form.watch("lineItems");
+  const taxRate = form.watch("taxRate"); // Watch tax rate
   const totalAmount = watchLineItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+
 
   const updateLineItemAmount = (index: number) => {
     const lineItem = watchLineItems[index];
@@ -132,6 +135,37 @@ export default function CreateInvoice() {
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Tax Rate Field */}
+                  <FormField
+                    control={form.control}
+                    name="taxRate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <Percent className="h-4 w-4 text-primary" />
+                          Tax Rate (%)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="100"
+                            className="bg-white hover:border-primary/50 transition-colors"
+                            {...field}
+                            onChange={(e) => {
+                              // Convert percentage to decimal (e.g., 10% -> 0.1)
+                              const value = Number(e.target.value) / 100;
+                              field.onChange(value);
+                            }}
+                            value={Number(field.value * 100)} // Convert decimal to percentage for display
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

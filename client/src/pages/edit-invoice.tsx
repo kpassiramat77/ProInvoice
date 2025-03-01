@@ -48,6 +48,7 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
       dueDate: "",
       userId: 1,
       template: "modern",
+      taxRate: 0, // Added default tax rate
       lineItems: [
         {
           description: "",
@@ -187,6 +188,34 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
                             className="bg-white"
                             {...field}
                             min={new Date().toISOString().split('T')[0]}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Tax Rate Field */}
+                  <FormField
+                    control={form.control}
+                    name="taxRate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tax Rate (%)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="100"
+                            className="bg-white"
+                            {...field}
+                            onChange={(e) => {
+                              // Convert percentage to decimal
+                              const value = Number(e.target.value) / 100;
+                              field.onChange(value);
+                            }}
+                            value={Number(field.value * 100)} // Convert decimal to percentage for display
                           />
                         </FormControl>
                         <FormMessage />
