@@ -25,9 +25,8 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     resolver: zodResolver(insertExpenseSchema),
     defaultValues: {
       description: "",
-      amount: 0,
+      amount: "",
       category: "",
-      subCategory: "",
       date: new Date().toISOString().split('T')[0],
       userId: 1,
     },
@@ -112,7 +111,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                       type="number"
                       step="0.01"
                       {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      onChange={(e) => field.onChange(e.target.value)}
                       className="bg-white"
                     />
                   </FormControl>
