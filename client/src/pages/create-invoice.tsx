@@ -39,8 +39,6 @@ export default function CreateInvoice() {
   const form = useForm({
     resolver: zodResolver(insertInvoiceSchema),
     defaultValues: {
-      clientName: "",
-      clientEmail: "",
       invoiceNumber: `INV-${Date.now()}`,
       description: "",
       status: "pending",
@@ -112,6 +110,69 @@ export default function CreateInvoice() {
             <Card className="p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:shadow-xl">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="clientName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-gray-700">
+                            <UserPlus className="h-4 w-4 text-primary" />
+                            Client Name
+                          </FormLabel>
+                          <FormControl>
+                            <Input {...field} className="bg-white hover:border-primary/50 transition-colors" placeholder="Enter client name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="clientEmail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-gray-700">
+                            <Mail className="h-4 w-4 text-primary" />
+                            Client Email
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              {...field}
+                              className="bg-white hover:border-primary/50 transition-colors"
+                              placeholder="Enter client email"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="dueDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <Calendar className="h-4 w-4 text-primary" />
+                          Due Date
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            className="bg-white hover:border-primary/50 transition-colors"
+                            {...field}
+                            min={new Date().toISOString().split('T')[0]}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="template"

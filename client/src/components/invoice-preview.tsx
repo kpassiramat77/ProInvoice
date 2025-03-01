@@ -18,11 +18,17 @@ interface InvoicePreviewProps {
 
 export function InvoicePreview({ invoice }: InvoicePreviewProps) {
   const handleDownload = () => {
-    const pdfDataUri = generateInvoicePDF(invoice);
-    const link = document.createElement("a");
-    link.href = pdfDataUri;
-    link.download = `invoice-${invoice.invoiceNumber}.pdf`;
-    link.click();
+    try {
+      const pdfDataUri = generateInvoicePDF(invoice);
+      const link = document.createElement("a");
+      link.href = pdfDataUri;
+      link.download = `invoice-${invoice.invoiceNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
   };
 
   const Template = templates[invoice.template as TemplateId]?.component || templates.modern.component;

@@ -23,6 +23,9 @@ export function generateInvoicePDF(invoice: Invoice & { lineItems: Array<{ descr
   doc.setFont("helvetica", 'normal');
   doc.setFontSize(12);
   doc.text(invoice.clientName, 20, 90);
+  if (invoice.clientEmail) {
+    doc.text(invoice.clientEmail, 20, 98);
+  }
 
   // Add line items table
   doc.setFontSize(12);
@@ -40,11 +43,13 @@ export function generateInvoicePDF(invoice: Invoice & { lineItems: Array<{ descr
 
   // Line items
   invoice.lineItems.forEach((item) => {
-    doc.text(item.description, 20, yPos);
+    // Ensure the description fits within the allocated space
+    const descriptionLines = doc.splitTextToSize(item.description, 90);
+    doc.text(descriptionLines, 20, yPos);
     doc.text(item.quantity.toString(), 120, yPos);
     doc.text(`$${item.unitPrice.toFixed(2)}`, 140, yPos);
     doc.text(`$${item.amount.toFixed(2)}`, 170, yPos);
-    yPos += 10;
+    yPos += descriptionLines.length > 1 ? 10 * descriptionLines.length : 10;
   });
 
   // Calculate totals
@@ -71,6 +76,7 @@ export function generateInvoicePDF(invoice: Invoice & { lineItems: Array<{ descr
   doc.setFont("helvetica", 'normal');
   doc.setTextColor(128, 128, 128); // Gray footer
   doc.text("Thank you for your business!", 105, 280, { align: "center" });
+  doc.text("Payment is due within 30 days of invoice date.", 105, 286, { align: "center" });
 
   return doc.output("datauristring");
 }
