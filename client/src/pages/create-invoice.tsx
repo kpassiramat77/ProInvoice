@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { templates } from "@/lib/invoice-templates";
-import { FileText, Plus, Trash2 } from "lucide-react";
+import { FileText, Plus, Trash2, Mail } from "lucide-react";
 
 const defaultDueDate = new Date();
 defaultDueDate.setDate(defaultDueDate.getDate() + 30);
@@ -40,6 +40,7 @@ export default function CreateInvoice() {
     resolver: zodResolver(insertInvoiceSchema),
     defaultValues: {
       clientName: "",
+      clientEmail: "", // Add client email field
       invoiceNumber: `INV-${Date.now()}`,
       description: "",
       status: "pending",
@@ -65,7 +66,6 @@ export default function CreateInvoice() {
   const watchLineItems = form.watch("lineItems");
   const totalAmount = watchLineItems.reduce((sum, item) => sum + (item.amount || 0), 0);
 
-  // Update amount when quantity or unit price changes
   const updateLineItemAmount = (index: number) => {
     const lineItem = watchLineItems[index];
     const amount = (lineItem.quantity || 0) * (lineItem.unitPrice || 0);
@@ -105,7 +105,6 @@ export default function CreateInvoice() {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Form */}
           <div className="lg:order-1 order-2">
             <Card className="p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <Form {...form}>
@@ -138,19 +137,41 @@ export default function CreateInvoice() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="clientName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Client Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} className="bg-white" placeholder="Enter client name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Added div for grid layout */}
+                    <FormField
+                      control={form.control}
+                      name="clientName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Client Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="bg-white" placeholder="Enter client name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="clientEmail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Client Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              {...field}
+                              className="bg-white"
+                              placeholder="Enter client email"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
 
                   <FormField
                     control={form.control}
@@ -171,7 +192,6 @@ export default function CreateInvoice() {
                     )}
                   />
 
-                  {/* Line Items */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold">Line Items</h3>
@@ -312,7 +332,6 @@ export default function CreateInvoice() {
             </Card>
           </div>
 
-          {/* Preview */}
           <div className="lg:order-2 order-1 lg:sticky lg:top-24 lg:self-start">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Preview</h2>

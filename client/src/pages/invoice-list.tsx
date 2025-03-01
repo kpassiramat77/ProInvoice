@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Plus, Pencil, Trash2, Filter, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Filter, X, Mail } from "lucide-react";
 import type { Invoice } from "@shared/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -96,6 +96,28 @@ export default function InvoiceList() {
       });
     },
   });
+
+  // Add email mutation
+  const emailInvoiceMutation = useMutation({
+    mutationFn: async ({ id, email }: { id: number; email: string }) => {
+      const response = await apiRequest("POST", `/api/invoices/${id}/email`, { email });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Email sent",
+        description: "Invoice has been sent to the client.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to send email. Please check the SendGrid API key is configured.",
+        variant: "destructive",
+      });
+    },
+  });
+
 
   const filteredInvoices = invoices?.filter((invoice) => {
     const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
@@ -250,6 +272,12 @@ export default function InvoiceList() {
                     <p className="text-sm text-gray-500 mb-2">
                       #{invoice.invoiceNumber}
                     </p>
+                    {invoice.clientEmail && (
+                      <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
+                        <Mail className="h-4 w-4" />
+                        {invoice.clientEmail}
+                      </p>
+                    )}
                     <div className="flex items-center gap-2">
                       <InvoiceStatusBadge status={invoice.status} />
                       <Select
@@ -304,6 +332,20 @@ export default function InvoiceList() {
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
+                      {invoice.clientEmail && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-200 hover:border-gray-300"
+                          onClick={() => emailInvoiceMutation.mutate({
+                            id: invoice.id,
+                            email: invoice.clientEmail
+                          })}
+                          disabled={emailInvoiceMutation.isPending}
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
