@@ -1,13 +1,24 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Filter, X } from "lucide-react";
 import type { Invoice } from "@shared/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from "react";
+
+const INVOICE_STATUSES = ["all", "pending", "paid", "overdue"] as const;
 
 function InvoiceStatusBadge({ status }: { status: string }) {
   const variants: Record<string, string> = {
@@ -26,6 +37,14 @@ function InvoiceStatusBadge({ status }: { status: string }) {
 export default function InvoiceList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [filters, setFilters] = useState({
+    status: "all",
+    search: "",
+    minAmount: "",
+    maxAmount: "",
+    startDate: "",
+    endDate: "",
+  });
 
   const { data: invoices, isLoading } = useQuery<(Invoice & { lineItems: Array<{ amount: number }> })[]>({
     queryKey: ["/api/invoices/1"], // Mock user ID = 1
@@ -52,6 +71,33 @@ export default function InvoiceList() {
     },
   });
 
+  const filteredInvoices = invoices?.filter((invoice) => {
+    const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
+
+    if (filters.status !== "all" && invoice.status !== filters.status) return false;
+
+    if (filters.search && !invoice.clientName.toLowerCase().includes(filters.search.toLowerCase())) return false;
+
+    if (filters.minAmount && invoiceTotal < Number(filters.minAmount)) return false;
+    if (filters.maxAmount && invoiceTotal > Number(filters.maxAmount)) return false;
+
+    if (filters.startDate && new Date(invoice.dueDate) < new Date(filters.startDate)) return false;
+    if (filters.endDate && new Date(invoice.dueDate) > new Date(filters.endDate)) return false;
+
+    return true;
+  });
+
+  const resetFilters = () => {
+    setFilters({
+      status: "all",
+      search: "",
+      minAmount: "",
+      maxAmount: "",
+      startDate: "",
+      endDate: "",
+    });
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -68,8 +114,90 @@ export default function InvoiceList() {
         </Link>
       </div>
 
+      {/* Filters */}
+      <Card className="mb-6">
+        <div className="p-4 space-y-4">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-sm font-medium flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filters
+            </h2>
+            <Button variant="ghost" size="sm" onClick={resetFilters}>
+              <X className="h-4 w-4 mr-2" />
+              Reset
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Status</label>
+              <Select
+                value={filters.status}
+                onValueChange={(value) => setFilters({ ...filters, status: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {INVOICE_STATUSES.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Search by client</label>
+              <Input
+                placeholder="Search client name..."
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Amount range</label>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.minAmount}
+                  onChange={(e) => setFilters({ ...filters, minAmount: e.target.value })}
+                />
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.maxAmount}
+                  onChange={(e) => setFilters({ ...filters, maxAmount: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Start date</label>
+              <Input
+                type="date"
+                value={filters.startDate}
+                onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">End date</label>
+              <Input
+                type="date"
+                value={filters.endDate}
+                onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+      </Card>
+
       <div className="space-y-4">
-        {invoices?.map((invoice) => {
+        {filteredInvoices?.map((invoice) => {
           const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
           return (
             <Card key={invoice.id} className="p-4">
@@ -123,7 +251,7 @@ export default function InvoiceList() {
           );
         })}
 
-        {invoices?.length === 0 && (
+        {filteredInvoices?.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500">No invoices found</p>
             <Link href="/create-invoice">
