@@ -32,7 +32,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for fetching expense data
+  // Query for fetching single expense data
   const { data: expense, isLoading: isLoadingExpense } = useQuery<Expense>({
     queryKey: ["/api/expenses", params.id],
     queryFn: async () => {
@@ -42,16 +42,9 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     },
   });
 
-  // Form setup with proper types
+  // Form setup
   const form = useForm<Expense>({
     resolver: zodResolver(insertExpenseSchema),
-    defaultValues: {
-      description: "",
-      amount: "",
-      category: "",
-      date: new Date().toLocaleDateString('en-CA'), // Format: YYYY-MM-DD
-      userId: 1,
-    },
   });
 
   // Update form when expense data is loaded
@@ -59,7 +52,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     if (expense) {
       form.reset({
         ...expense,
-        date: new Date(expense.date).toLocaleDateString('en-CA'),
+        date: new Date(expense.date).toISOString().split('T')[0],
       });
     }
   }, [expense, form]);
@@ -69,7 +62,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     mutationFn: async (data: Expense) => {
       const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, {
         ...data,
-        amount: String(data.amount), // Ensure amount is sent as string
+        amount: String(data.amount),
       });
       if (!response.ok) {
         throw new Error("Failed to update expense");
