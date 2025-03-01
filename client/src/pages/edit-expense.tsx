@@ -32,7 +32,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for fetching single expense data
+  // Query for fetching expense data
   const { data: expense, isLoading: isLoadingExpense } = useQuery<Expense>({
     queryKey: ["/api/expenses", params.id],
     queryFn: async () => {
@@ -46,32 +46,19 @@ export default function EditExpense({ params }: { params: { id: string } }) {
   // Form setup
   const form = useForm<Expense>({
     resolver: zodResolver(insertExpenseSchema),
-    defaultValues: {
-      description: "",
-      amount: "",
-      category: "Other",
-      date: new Date().toISOString().split('T')[0],
-      userId: 1,
-    }
   });
 
   // Update form when expense data is loaded
   React.useEffect(() => {
     if (expense) {
       try {
-        // Ensure proper date formatting
-        const dateStr = expense.date instanceof Date 
-          ? expense.date.toISOString().split('T')[0]
-          : new Date(expense.date).toISOString().split('T')[0];
+        const formattedExpense = {
+          ...expense,
+          amount: Number(expense.amount),
+          date: new Date(expense.date).toISOString().split('T')[0],
+        };
 
-        form.reset({
-          description: expense.description,
-          amount: expense.amount,
-          category: expense.category,
-          date: dateStr,
-          userId: expense.userId,
-          id: expense.id,
-        });
+        form.reset(formattedExpense);
       } catch (error) {
         console.error("Error setting form data:", error);
         toast({
@@ -169,6 +156,8 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                       type="number"
                       step="0.01"
                       {...field}
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : "")}
                       className="bg-white"
                     />
                   </FormControl>
