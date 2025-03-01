@@ -38,21 +38,32 @@ export default function EditExpense({ params }: { params: { id: string } }) {
     queryFn: async () => {
       const response = await apiRequest("GET", `/api/expenses/${params.id}`);
       if (!response.ok) throw new Error("Failed to fetch expense");
-      return response.json();
+      const data = await response.json();
+      return data;
     },
   });
 
   // Form setup
   const form = useForm<Expense>({
     resolver: zodResolver(insertExpenseSchema),
+    defaultValues: {
+      description: "",
+      amount: 0,
+      category: "Other",
+      date: new Date().toISOString().split('T')[0],
+      userId: 1,
+    }
   });
 
   // Update form when expense data is loaded
   React.useEffect(() => {
     if (expense) {
       form.reset({
-        ...expense,
+        description: expense.description,
+        amount: Number(expense.amount),
+        category: expense.category,
         date: new Date(expense.date).toISOString().split('T')[0],
+        userId: expense.userId,
       });
     }
   }, [expense, form]);
@@ -60,10 +71,12 @@ export default function EditExpense({ params }: { params: { id: string } }) {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async (data: Expense) => {
-      const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, {
+      const formattedData = {
         ...data,
         amount: String(data.amount),
-      });
+      };
+
+      const response = await apiRequest("PATCH", `/api/expenses/${params.id}`, formattedData);
       if (!response.ok) {
         throw new Error("Failed to update expense");
       }
@@ -142,7 +155,7 @@ export default function EditExpense({ params }: { params: { id: string } }) {
                       {...field}
                       onChange={(e) => {
                         const value = e.target.value;
-                        field.onChange(value ? Number(value) : "");
+                        field.onChange(value ? Number(value) : 0);
                       }}
                       className="bg-white"
                     />
