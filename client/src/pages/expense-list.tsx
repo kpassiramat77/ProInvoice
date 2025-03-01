@@ -70,6 +70,9 @@ export default function ExpenseList() {
   });
 
   const filteredExpenses = expenses?.filter((expense) => {
+    const expenseDate = new Date(expense.date);
+    expenseDate.setHours(0, 0, 0, 0);
+
     if (filters.category !== "All" && expense.category !== filters.category) return false;
 
     if (filters.search && !expense.description.toLowerCase().includes(filters.search.toLowerCase())) return false;
@@ -77,8 +80,17 @@ export default function ExpenseList() {
     if (filters.minAmount && Number(expense.amount) < Number(filters.minAmount)) return false;
     if (filters.maxAmount && Number(expense.amount) > Number(filters.maxAmount)) return false;
 
-    if (filters.startDate && new Date(expense.date) < new Date(filters.startDate)) return false;
-    if (filters.endDate && new Date(expense.date) > new Date(filters.endDate)) return false;
+    if (filters.startDate) {
+      const startDate = new Date(filters.startDate);
+      startDate.setHours(0, 0, 0, 0);
+      if (expenseDate < startDate) return false;
+    }
+
+    if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      endDate.setHours(23, 59, 59, 999);
+      if (expenseDate > endDate) return false;
+    }
 
     return true;
   });

@@ -99,6 +99,8 @@ export default function InvoiceList() {
 
   const filteredInvoices = invoices?.filter((invoice) => {
     const invoiceTotal = invoice.lineItems.reduce((sum, item) => sum + Number(item.amount), 0);
+    const invoiceDate = new Date(invoice.dueDate);
+    invoiceDate.setHours(0, 0, 0, 0);
 
     if (filters.status !== "all" && invoice.status !== filters.status) return false;
 
@@ -107,8 +109,17 @@ export default function InvoiceList() {
     if (filters.minAmount && invoiceTotal < Number(filters.minAmount)) return false;
     if (filters.maxAmount && invoiceTotal > Number(filters.maxAmount)) return false;
 
-    if (filters.startDate && new Date(invoice.dueDate) < new Date(filters.startDate)) return false;
-    if (filters.endDate && new Date(invoice.dueDate) > new Date(filters.endDate)) return false;
+    if (filters.startDate) {
+      const startDate = new Date(filters.startDate);
+      startDate.setHours(0, 0, 0, 0);
+      if (invoiceDate < startDate) return false;
+    }
+
+    if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      endDate.setHours(23, 59, 59, 999);
+      if (invoiceDate > endDate) return false;
+    }
 
     return true;
   });
