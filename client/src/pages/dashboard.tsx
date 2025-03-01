@@ -15,6 +15,17 @@ import {
   Filter,
   Download,
   Brain,
+  Receipt,
+  CreditCard,
+  Wallet,
+  BarChart as ChartIcon,
+  PieChart as PieChartIcon,
+  Calendar,
+  Tag,
+  Mail,
+  Clock,
+  Check,
+  AlertTriangle,
 } from "lucide-react";
 import {
   BarChart,
@@ -70,10 +81,17 @@ function InvoiceStatusBadge({ status }: { status: string }) {
     overdue: "bg-red-100 text-red-800",
   };
 
+  const icons: Record<string, React.ReactNode> = {
+    pending: <Clock className="h-3 w-3 mr-1" />,
+    paid: <Check className="h-3 w-3 mr-1" />,
+    overdue: <AlertTriangle className="h-3 w-3 mr-1" />,
+  };
+
   return (
-    <Badge className={variants[status] || "bg-gray-100 text-gray-800"}>
+    <span className={`status-label inline-flex items-center ${variants[status] || "bg-gray-100 text-gray-800"}`}>
+      {icons[status]}
       {status.charAt(0).toUpperCase() + status.slice(1)}
-    </Badge>
+    </span>
   );
 }
 
@@ -275,7 +293,12 @@ export default function Dashboard() {
       {/* Header with Quick Actions */}
       <div className="mb-10">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <ChartIcon className="h-6 w-6 text-primary" />
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+          </div>
           <div className="flex gap-3">
             <TooltipComponent>
               <TooltipTrigger asChild>
@@ -304,8 +327,8 @@ export default function Dashboard() {
             <TooltipComponent>
               <TooltipTrigger asChild>
                 <Link href="/create-invoice">
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
+                  <Button className="bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90">
+                    <Receipt className="h-4 w-4 mr-2" />
                     New Invoice
                   </Button>
                 </Link>
@@ -324,7 +347,7 @@ export default function Dashboard() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium tracking-tight">Total Invoices</CardTitle>
             <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
-              <DollarSign className="h-4 w-4 text-blue-600" />
+              <Receipt className="h-4 w-4 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -339,7 +362,7 @@ export default function Dashboard() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium tracking-tight">Total Expenses</CardTitle>
             <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
-              <TrendingUp className="h-4 w-4 text-red-600" />
+              <CreditCard className="h-4 w-4 text-red-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -354,7 +377,7 @@ export default function Dashboard() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium tracking-tight">Net Profit</CardTitle>
             <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
-              <DollarSign className="h-4 w-4 text-emerald-600" />
+              <Wallet className="h-4 w-4 text-emerald-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -366,11 +389,14 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Add Charts Section */}
+      {/* Charts Section */}
       <div className="grid lg:grid-cols-2 gap-8 mb-10">
         <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Revenue Trends</CardTitle>
+            <div className="flex items-center gap-2">
+              <ChartIcon className="h-5 w-5 text-gray-500" />
+              <CardTitle className="text-lg font-medium">Revenue Trends</CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
@@ -392,7 +418,10 @@ export default function Dashboard() {
 
         <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Invoice Status Distribution</CardTitle>
+            <div className="flex items-center gap-2">
+              <PieChartIcon className="h-5 w-5 text-gray-500" />
+              <CardTitle className="text-lg font-medium">Invoice Status Distribution</CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
@@ -423,10 +452,13 @@ export default function Dashboard() {
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Invoices Section */}
+        {/* Recent Invoices Section */}
         <div className="space-y-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium text-gray-900">Recent Invoices</h2>
+            <div className="flex items-center gap-2">
+              <Receipt className="h-5 w-5 text-gray-500" />
+              <h2 className="text-lg font-medium text-gray-900">Recent Invoices</h2>
+            </div>
             <Button variant="ghost" size="sm" onClick={() => setLocation("/invoices")} className="text-gray-600 hover:text-gray-900">
               View all
             </Button>
@@ -519,7 +551,10 @@ export default function Dashboard() {
         {/* Expenses Section */}
         <div className="space-y-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium text-gray-900">Expenses</h2>
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-gray-500" />
+              <h2 className="text-lg font-medium text-gray-900">Expenses</h2>
+            </div>
             <Button variant="ghost" size="sm" onClick={() => setLocation("/expenses")} className="text-gray-600 hover:text-gray-900">
               View all
             </Button>
@@ -528,7 +563,10 @@ export default function Dashboard() {
           <Card className="bg-white shadow-sm">
             <div className="p-5">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">Add New Expense</h3>
+                <div className="flex items-center gap-2">
+                  <Plus className="h-4 w-4 text-gray-500" />
+                  <h3 className="text-sm font-medium">Add New Expense</h3>
+                </div>
               </div>
 
               <div className="mt-4">
