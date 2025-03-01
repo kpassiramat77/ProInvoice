@@ -13,12 +13,12 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
   return (
     <div className={cn("max-w-3xl mx-auto p-8 bg-white shadow-md rounded-lg border border-gray-300", className)}>
       {/* Header Section */}
-      <div className="flex justify-between items-center pb-4 border-b border-gray-300">
+      <div className="flex justify-between items-center">
         {businessInfo?.logo && (
-          <img src={businessInfo.logo} alt="Logo" className="w-16 h-16 object-contain" />
+          <img src={businessInfo.logo} alt="Logo" className="w-12 h-12 object-contain" />
         )}
         <div className="text-right">
-          <h2 className="text-2xl font-bold">{businessInfo?.businessName || "Business Name"}</h2>
+          <h2 className="text-xl font-bold">{businessInfo?.businessName || "Business Name"}</h2>
         </div>
       </div>
 
@@ -27,11 +27,10 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
         <div>
           <p className="font-bold">From</p>
           {businessInfo && (
-            <div className="text-gray-600">
-              <p>{businessInfo.businessName}</p>
-              <p>{businessInfo.phone}</p>
-              <p>{businessInfo.email}</p>
-              <p>{`${businessInfo.address}, ${businessInfo.city}, ${businessInfo.state} ${businessInfo.zipCode}`}</p>
+            <div className="text-gray-600 text-sm">
+              {businessInfo.businessName}
+              <p>{businessInfo.address}, {businessInfo.city}, {businessInfo.state} {businessInfo.zipCode}</p>
+              <p>{businessInfo.phone} • {businessInfo.email}</p>
             </div>
           )}
         </div>
@@ -42,20 +41,20 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
       </div>
 
       {/* Bill To Section */}
-      <div className="mt-8">
+      <div className="mt-6">
         <h3 className="font-bold mb-2">Bill To:</h3>
         <p>{invoice.clientName}</p>
       </div>
 
       {/* Items Table */}
-      <div className="mt-8">
+      <div className="mt-6">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-gray-100">
               <th className="border p-2 text-center">QTY</th>
               <th className="border p-2 text-left">DESCRIPTION</th>
-              <th className="border p-2 text-right">PRICE</th>
-              <th className="border p-2 text-right">TOTAL</th>
+              <th className="border p-2 text-right">RATE</th>
+              <th className="border p-2 text-right">AMOUNT</th>
             </tr>
           </thead>
           <tbody>
@@ -78,7 +77,7 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
       </div>
 
       {/* Totals Section */}
-      <div className="mt-4 text-right border-t pt-4">
+      <div className="mt-4 text-right">
         <div className="flex justify-end">
           <div className="w-48 space-y-1">
             <div className="flex justify-between">
@@ -89,7 +88,7 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
               <p className="text-gray-600">Tax:</p>
               <p className="font-medium">${tax.toFixed(2)}</p>
             </div>
-            <div className="flex justify-between text-lg font-bold border-t border-gray-200 pt-1">
+            <div className="flex justify-between text-lg font-bold">
               <p>Total:</p>
               <p>${totalAmount.toFixed(2)}</p>
             </div>
@@ -98,9 +97,9 @@ export function ModernTemplate({ invoice, className }: InvoiceTemplateProps) {
       </div>
 
       {/* Footer */}
-      <div className="mt-8 text-sm border-t pt-4">
-        <p className="text-center text-gray-700 font-bold mb-2">Thank you for your business!</p>
-        <p className="text-center text-gray-600">Payment is due within 30 days of invoice date.</p>
+      <div className="mt-6 text-sm text-center text-gray-600">
+        <p className="font-bold mb-1">Thank you for your business!</p>
+        <p>Payment is due within 30 days of invoice date.</p>
       </div>
     </div>
   );
