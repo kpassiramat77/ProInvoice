@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "@/pages/dashboard";
 import CreateInvoice from "@/pages/create-invoice";
 import EditInvoice from "@/pages/edit-invoice";
+import EditExpense from "@/pages/edit-expense"; // Add import
 import BusinessSettings from "@/pages/business-settings";
 import NotFound from "@/pages/not-found";
 import InvoiceList from "@/pages/invoice-list";
@@ -129,6 +130,7 @@ function Router() {
       <Route path="/expenses" component={ExpenseList} />
       <Route path="/create-invoice" component={CreateInvoice} />
       <Route path="/edit-invoice/:id" component={EditInvoice} />
+      <Route path="/edit-expense/:id" component={EditExpense} /> {/* Add new route */}
       <Route path="/business-settings" component={BusinessSettings} />
       <Route component={NotFound} />
     </Switch>
