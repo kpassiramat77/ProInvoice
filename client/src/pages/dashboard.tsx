@@ -177,14 +177,14 @@ export default function Dashboard() {
       <div className="grid md:grid-cols-3 gap-6 mb-10">
         <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
+            <CardTitle className="text-sm font-medium tracking-tight">Total Invoices</CardTitle>
             <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
               <DollarSign className="h-4 w-4 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">${totalInvoices.toFixed(2)}</div>
-            <p className="text-xs text-gray-600 mt-1">
+            <div className="metric-value text-gray-900">${totalInvoices.toFixed(2)}</div>
+            <p className="text-xs text-gray-600 mt-1 tracking-tight">
               {invoices?.length || 0} active invoices
             </p>
           </CardContent>
@@ -192,14 +192,14 @@ export default function Dashboard() {
 
         <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium tracking-tight">Total Expenses</CardTitle>
             <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
               <TrendingUp className="h-4 w-4 text-red-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">${totalExpenses.toFixed(2)}</div>
-            <p className="text-xs text-gray-600 mt-1">
+            <div className="metric-value text-gray-900">${totalExpenses.toFixed(2)}</div>
+            <p className="text-xs text-gray-600 mt-1 tracking-tight">
               {expenses?.length || 0} recorded expenses
             </p>
           </CardContent>
@@ -207,16 +207,16 @@ export default function Dashboard() {
 
         <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
+            <CardTitle className="text-sm font-medium tracking-tight">Net Profit</CardTitle>
             <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
               <DollarSign className="h-4 w-4 text-emerald-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <div className={`metric-value ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               ${profit.toFixed(2)}
             </div>
-            <p className="text-xs text-gray-600 mt-1">Current balance</p>
+            <p className="text-xs text-gray-600 mt-1 tracking-tight">Current balance</p>
           </CardContent>
         </Card>
       </div>
@@ -279,8 +279,8 @@ export default function Dashboard() {
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button 
-                                  variant="outline" 
+                                <Button
+                                  variant="outline"
                                   size="sm"
                                   className="border-gray-200 hover:border-gray-300"
                                 >

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,5 +11,21 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  h1 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  h2 {
+    @apply text-xl font-medium tracking-tight;
+  }
+
+  .metric-value {
+    @apply text-2xl font-bold tracking-tight tabular-nums;
+  }
+
+  .status-label {
+    @apply text-xs font-medium px-2.5 py-0.5 rounded-full;
   }
 }
