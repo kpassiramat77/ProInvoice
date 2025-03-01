@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
-import { Plus, Pencil, Trash2, Filter, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Filter, X, Tag, Calendar, DollarSign, Search, FileText } from "lucide-react";
 import type { Expense } from "@shared/schema";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -45,7 +45,7 @@ export default function ExpenseList() {
   });
 
   const { data: expenses, isLoading } = useQuery<Expense[]>({
-    queryKey: ["/api/expenses/1"], // Mock user ID = 1
+    queryKey: ["/api/expenses/1"],
   });
 
   const deleteExpenseMutation = useMutation({
@@ -74,9 +74,7 @@ export default function ExpenseList() {
     expenseDate.setHours(0, 0, 0, 0);
 
     if (filters.category !== "All" && expense.category !== filters.category) return false;
-
     if (filters.search && !expense.description.toLowerCase().includes(filters.search.toLowerCase())) return false;
-
     if (filters.minAmount && Number(expense.amount) < Number(filters.minAmount)) return false;
     if (filters.maxAmount && Number(expense.amount) > Number(filters.maxAmount)) return false;
 
@@ -107,37 +105,54 @@ export default function ExpenseList() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">All Expenses</h1>
+    <div className="container mx-auto py-8 px-6">
+      <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <DollarSign className="h-6 w-6 text-primary" />
+          </div>
+          <h1 className="text-3xl font-bold">All Expenses</h1>
+        </div>
       </div>
 
       {/* Filters */}
-      <Card className="mb-6">
-        <div className="p-4 space-y-4">
-          <div className="flex justify-between items-center mb-2">
+      <Card className="mb-8 shadow-sm hover:shadow-md transition-all duration-200">
+        <div className="p-5 space-y-5">
+          <div className="flex justify-between items-center">
             <h2 className="text-sm font-medium flex items-center gap-2">
-              <Filter className="h-4 w-4" />
+              <Filter className="h-4 w-4 text-primary" />
               Filters
             </h2>
-            <Button variant="ghost" size="sm" onClick={resetFilters}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetFilters}
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
               <X className="h-4 w-4 mr-2" />
               Reset
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Category</label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="space-y-2.5">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Tag className="h-4 w-4 text-primary" />
+                Category
+              </label>
               <Select
                 value={filters.category}
                 onValueChange={(value) => setFilters({ ...filters, category: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white hover:border-primary/50 transition-colors">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -150,100 +165,129 @@ export default function ExpenseList() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Search description</label>
+            <div className="space-y-2.5">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Search className="h-4 w-4 text-primary" />
+                Search description
+              </label>
               <Input
                 placeholder="Search description..."
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                className="bg-white hover:border-primary/50 transition-colors"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Amount range</label>
+            <div className="space-y-2.5">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-primary" />
+                Amount range
+              </label>
               <div className="flex gap-2">
                 <Input
                   type="number"
                   placeholder="Min"
                   value={filters.minAmount}
                   onChange={(e) => setFilters({ ...filters, minAmount: e.target.value })}
+                  className="bg-white hover:border-primary/50 transition-colors"
                 />
                 <Input
                   type="number"
                   placeholder="Max"
                   value={filters.maxAmount}
                   onChange={(e) => setFilters({ ...filters, maxAmount: e.target.value })}
+                  className="bg-white hover:border-primary/50 transition-colors"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Start date</label>
+            <div className="space-y-2.5">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                Start date
+              </label>
               <Input
                 type="date"
                 value={filters.startDate}
                 onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+                className="bg-white hover:border-primary/50 transition-colors"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">End date</label>
+            <div className="space-y-2.5">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                End date
+              </label>
               <Input
                 type="date"
                 value={filters.endDate}
                 onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+                className="bg-white hover:border-primary/50 transition-colors"
               />
             </div>
           </div>
         </div>
       </Card>
 
-      <Card className="mb-6">
-        <div className="p-4">
+      <Card className="mb-8 shadow-sm hover:shadow-md transition-all duration-200">
+        <div className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Plus className="h-4 w-4 text-primary" />
+            <h2 className="text-lg font-semibold">Add New Expense</h2>
+          </div>
           <ExpenseForm />
         </div>
       </Card>
 
       <div className="space-y-4">
         {filteredExpenses?.map((expense) => (
-          <Card key={expense.id} className="p-4">
+          <Card key={expense.id} className="p-5 bg-white shadow-sm hover:shadow-md transition-all duration-200">
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-medium text-gray-900">{expense.description}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary">{expense.category}</Badge>
+                  <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">{expense.category}</Badge>
                   {expense.subCategory && (
                     <>
                       <span className="text-xs text-gray-400">→</span>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs hover:bg-gray-100">
                         {expense.subCategory}
                       </Badge>
                     </>
                   )}
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
                     {new Date(expense.date).toLocaleDateString()}
                   </span>
                 </div>
                 {expense.categoryExplanation && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    <Tag className="h-3 w-3" />
                     {expense.categoryExplanation}
                   </p>
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <p className="font-semibold text-gray-900 mr-4">
-                  ${Number(expense.amount).toFixed(2)}
+                <p className="font-semibold text-gray-900 mr-4 flex items-center">
+                  <DollarSign className="h-4 w-4 text-primary" />
+                  {Number(expense.amount).toFixed(2)}
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setLocation(`/edit-expense/${expense.id}`)}
+                  className="border-gray-200 hover:border-primary/50 transition-colors"
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-200 hover:border-red-200 transition-colors"
+                    >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </AlertDialogTrigger>
@@ -258,7 +302,7 @@ export default function ExpenseList() {
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => deleteExpenseMutation.mutate(expense.id)}
-                        className="bg-red-500 hover:bg-red-600"
+                        className="bg-red-500 hover:bg-red-600 transition-colors"
                       >
                         Delete
                       </AlertDialogAction>
@@ -272,7 +316,20 @@ export default function ExpenseList() {
 
         {filteredExpenses?.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No expenses recorded</p>
+            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No expenses found</p>
+            <Button
+              className="mt-4 bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90 transition-all duration-200"
+              onClick={() => {
+                const form = document.querySelector('form');
+                if (form) {
+                  form.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add your first expense
+            </Button>
           </div>
         )}
       </div>

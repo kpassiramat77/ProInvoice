@@ -16,20 +16,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Building2, Upload } from "lucide-react";
+import { Building2, Upload, User, Mail, Phone, MapPin, ImageIcon } from "lucide-react";
 
 export default function BusinessSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: settings } = useQuery({
-    queryKey: ["/api/business-settings/1"], // Mock user ID = 1
+    queryKey: ["/api/business-settings/1"],
   });
 
   const form = useForm({
     resolver: zodResolver(insertBusinessSettingsSchema),
     defaultValues: {
-      userId: 1, // Mock user ID
+      userId: 1,
       businessName: settings?.businessName || "",
       address: settings?.address || "",
       city: settings?.city || "",
@@ -79,6 +79,11 @@ export default function BusinessSettings() {
 
       const { url } = await response.json();
       form.setValue("logo", url);
+
+      toast({
+        title: "Logo uploaded",
+        description: "Your business logo has been updated successfully.",
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -98,7 +103,7 @@ export default function BusinessSettings() {
           <h1 className="text-3xl font-bold">Business Settings</h1>
         </div>
 
-        <Card className="max-w-2xl mx-auto p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="max-w-2xl mx-auto p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-200">
           <Form {...form}>
             <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
               <div className="space-y-4">
@@ -107,9 +112,12 @@ export default function BusinessSettings() {
                   name="businessName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Business Name</FormLabel>
+                      <FormLabel className="flex items-center gap-2 text-gray-700">
+                        <Building2 className="h-4 w-4 text-primary" />
+                        Business Name
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} className="bg-white" placeholder="Enter your business name" />
+                        <Input {...field} className="bg-white hover:border-primary/50 transition-colors" placeholder="Enter your business name" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -121,9 +129,12 @@ export default function BusinessSettings() {
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
+                      <FormLabel className="flex items-center gap-2 text-gray-700">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        Address
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} className="bg-white" placeholder="Enter your business address" />
+                        <Input {...field} className="bg-white hover:border-primary/50 transition-colors" placeholder="Enter your business address" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -136,9 +147,12 @@ export default function BusinessSettings() {
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <MapPin className="h-4 w-4 text-primary" />
+                          City
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} className="bg-white" placeholder="City" />
+                          <Input {...field} className="bg-white hover:border-primary/50 transition-colors" placeholder="City" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -150,9 +164,12 @@ export default function BusinessSettings() {
                     name="state"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>State</FormLabel>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <MapPin className="h-4 w-4 text-primary" />
+                          State
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} className="bg-white" placeholder="State" />
+                          <Input {...field} className="bg-white hover:border-primary/50 transition-colors" placeholder="State" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -165,9 +182,12 @@ export default function BusinessSettings() {
                   name="zipCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>ZIP Code</FormLabel>
+                      <FormLabel className="flex items-center gap-2 text-gray-700">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        ZIP Code
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} className="bg-white" placeholder="ZIP Code" />
+                        <Input {...field} className="bg-white hover:border-primary/50 transition-colors" placeholder="ZIP Code" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -180,9 +200,12 @@ export default function BusinessSettings() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone</FormLabel>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <Phone className="h-4 w-4 text-primary" />
+                          Phone
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} className="bg-white" type="tel" placeholder="Phone number" />
+                          <Input {...field} className="bg-white hover:border-primary/50 transition-colors" type="tel" placeholder="Phone number" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -194,9 +217,12 @@ export default function BusinessSettings() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <Mail className="h-4 w-4 text-primary" />
+                          Email
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} className="bg-white" type="email" placeholder="Business email" />
+                          <Input {...field} className="bg-white hover:border-primary/50 transition-colors" type="email" placeholder="Business email" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -209,22 +235,30 @@ export default function BusinessSettings() {
                   name="logo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Logo</FormLabel>
+                      <FormLabel className="flex items-center gap-2 text-gray-700">
+                        <ImageIcon className="h-4 w-4 text-primary" />
+                        Logo
+                      </FormLabel>
                       <FormControl>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 bg-gray-50/50 p-4 rounded-lg hover:bg-gray-50 transition-colors">
                           {field.value && (
                             <img
                               src={field.value}
                               alt="Business logo"
-                              className="h-12 w-12 object-contain rounded-lg border border-gray-200"
+                              className="h-16 w-16 object-contain rounded-lg border border-gray-200 bg-white p-2"
                             />
                           )}
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleLogoUpload}
-                            className="flex-1 bg-white"
-                          />
+                          <div className="flex-1">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleLogoUpload}
+                              className="bg-white hover:border-primary/50 transition-colors"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              Recommended: Square image, at least 200x200px
+                            </p>
+                          </div>
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -235,7 +269,7 @@ export default function BusinessSettings() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90"
+                className="w-full bg-gradient-to-r from-primary to-[#22c55e] hover:from-primary/90 hover:to-[#22c55e]/90 transition-all duration-200"
                 disabled={mutation.isPending}
               >
                 <Upload className="mr-2 h-4 w-4" />
